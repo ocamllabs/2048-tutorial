@@ -11,6 +11,9 @@ let onload _ =
     heading##style##textAlign <- Js.string "center";
     Dom.appendChild main heading;
     Dom.appendChild main canvas;
+    let renderer = Vg.Vgr.create (Vg.Vgr_htmlc.target canvas) `Other in
+      Board.draw renderer
+
     let b = Board.create canvas in
       Board.draw b;
       Board.destroy b;
