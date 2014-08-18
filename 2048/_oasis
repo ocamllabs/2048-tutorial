@@ -1,0 +1,14 @@
+OASISFormat: 0.4
+Name:        2048
+Version:     0.1
+Synopsis:    2048 in OCaml
+Authors:     Jeremy Yallop
+License:     MIT
+Plugins:     META (0.4), DevFiles (0.4)
+BuildTools:  ocamlbuild
+
+Library TwentyFortyEight
+  Path: src
+  Findlibname: 2048
+  Modules: TwentyFortyEight
+  BuildDepends:	
