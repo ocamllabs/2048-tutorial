@@ -12,3 +12,16 @@ Library TwentyFortyEight
   Findlibname: 2048
   Modules: TwentyFortyEight
   BuildDepends:	
+
+Executable test_2048
+  Path: tests
+  CompiledObject: best
+  MainIs: twentyFortyEightTests.ml
+  Install: false
+  BuildDepends: oUnit, 2048, qcheck
+  BuildTools: ocamlbuild
+
+Test test_twentyfortyeight
+  Run$:             flag(tests)
+  Command:          $test_2048
+  WorkingDirectory: tests
