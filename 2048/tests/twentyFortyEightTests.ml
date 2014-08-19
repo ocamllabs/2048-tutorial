@@ -27,6 +27,57 @@ let test_add () =
                   (fun board ->
                     insert_into_board t2 board <> None)))
 
+(* Some tests for movements *)
+let test_movements () =
+  let board = [[t2   ; empty; t2   ; t4   ];
+               [t2   ; empty; empty; t4   ];
+               [empty; empty; empty; empty];
+               [empty; empty; t8   ; t8   ]]
+  in
+  begin
+    assert_equal (shift L board)
+      ~printer:string_of_board
+      [[t4   ; t4   ; empty; empty];
+       [t2   ; t4   ; empty; empty];
+       [empty; empty; empty; empty];
+       [t16  ; empty; empty; empty]];
+
+    assert_equal (shift R board)
+      ~printer:string_of_board
+      [[empty; empty; t4   ; t4   ];
+       [empty; empty; t2   ; t4   ];
+       [empty; empty; empty; empty];
+       [empty; empty; empty; t16  ]];
+    
+    assert_equal (shift U board)
+      ~printer:string_of_board
+      [[t4   ; empty; t2   ; t8   ];
+       [empty; empty; t8   ; t8   ];
+       [empty; empty; empty; empty];
+       [empty; empty; empty; empty]];
+
+    assert_equal (shift D board)
+      ~printer:string_of_board
+      [[empty; empty; empty; empty];
+       [empty; empty; empty; empty];
+       [empty; empty; t2   ; t8   ];
+       [t4   ; empty; t8   ; t8   ]];
+
+    assert_equal (shift L (shift L board))
+      ~printer:string_of_board
+      [[t8   ; empty; empty; empty];
+       [t2   ; t4   ; empty; empty];
+       [empty; empty; empty; empty];
+       [t16  ; empty; empty; empty]];
+
+    assert_equal (shift U (shift U board))
+      ~printer:string_of_board
+      [[t4   ; empty; t2   ; t16  ];
+       [empty; empty; t8   ; empty];
+       [empty; empty; empty; empty];
+       [empty; empty; empty; empty]];
+  end
+
 let suite = "2048 tests" >:::
   ["a fixpoint is reached after width(board) shifts"
     >:: test_shift_fixpoint;
@@ -36,6 +87,9 @@ let suite = "2048 tests" >:::
 
    "tiles cannot be added to a fully-populated board"
     >:: test_add_to_full;
+
+   "test movements"
+    >:: test_movements;
   ]
 let _ =
   run_test_tt_main suite
