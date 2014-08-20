@@ -2,13 +2,13 @@ open OUnit
 open TwentyFortyEight
 open Board_utils
 
+let mk_board_test = QCheck.mk_test ~n:1000 ~pp:string_of_board
+
 let check_board_property name ?size (prop : board -> bool) =
-  assert QCheck.(run (mk_test ~name ~pp:string_of_board
-                        (arbitrary_board ?size) prop))
+  assert QCheck.(run (mk_board_test (arbitrary_board ?size) prop))
 
 let check_full_board_property name ?size (prop : board -> bool) =
-  assert QCheck.(run (mk_test ~name ~pp:string_of_board
-                        (arbitrary_full_board ?size) prop))
+  assert QCheck.(run (mk_board_test (arbitrary_full_board ?size) prop))
 
 let test_shift_fixpoint () =
   check_board_property "Shifting reaches a fixpoint after width(board) shifts"
@@ -26,6 +26,34 @@ let test_add () =
                   ==>
                   (fun board ->
                     insert_into_board t2 board <> None)))
+
+(* Some tests for is_full_board *)
+let test_is_full_board () =
+  begin
+    check_full_board_property "Randomly generated full boards are full"
+      is_full_board;
+
+    assert_equal true
+      (is_full_board []);
+
+    assert_equal true
+      (is_full_board [[t2]]);
+
+    assert_equal true
+      (is_full_board [[t2; t4 ];
+                      [t8; t16]]);
+  
+    assert_equal false
+      (is_full_board [[empty]]);
+
+    assert_equal false
+      (is_full_board [[t2; empty];
+                      [t4; t8   ]]);
+
+    assert_equal false
+      (is_full_board [[empty; empty];
+                      [empty; empty]]);
+  end
 
 (* Some tests for movements *)
 let test_movements () =
@@ -87,6 +115,9 @@ let suite = "2048 tests" >:::
 
    "tiles cannot be added to a fully-populated board"
     >:: test_add_to_full;
+
+   "test is_full_board"
+    >:: test_is_full_board;
 
    "test movements"
     >:: test_movements;
