@@ -35,3 +35,6 @@ let arbitrary_full_board ?(size=4) : board QCheck.Arbitrary.t =
   QCheck.Arbitrary.(list ~len:(const size) (arbitrary_full_row ~len:size))
 
 let rec iter n f x = if n = 0 then x else iter (n - 1) f (f x)
+
+let sorted_squares : square list -> square list = List.sort Pervasives.compare
+let board_squares = List.concat

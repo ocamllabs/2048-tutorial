@@ -55,6 +55,23 @@ let test_is_full_board () =
                       [empty; empty]]);
   end
 
+(* Tests for insert_into_board *)
+let test_insert () =
+  let insert_property square board =
+    let ofSome = function Some x -> x | None -> assert false in
+   (* rely on the fact that `sort_squares` places empties first *)
+    assert (not (is_full_board board));
+    (sorted_squares (board_squares (ofSome (insert_into_board square board)))
+     = 
+     sorted_squares (square :: List.tl (sorted_squares (board_squares board))))
+  in
+  check_board_property "insert_into_board adds a square to the board"
+    QCheck.(Prop.((fun board -> not (is_full_board board))
+                     ==>
+                  (insert_property t8)))
+
+      
+
 (* Some tests for movements *)
 let test_movements () =
   let board = [[t2   ; empty; t2   ; t4   ];
@@ -118,6 +135,9 @@ let suite = "2048 tests" >:::
 
    "test is_full_board"
     >:: test_is_full_board;
+
+   "test insert_into_board"
+    >:: test_insert;
 
    "test movements"
     >:: test_movements;
