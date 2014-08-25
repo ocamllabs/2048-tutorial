@@ -3,18 +3,16 @@
    * shifting the board in some direction, which always succeeds (although
      it's sometimes the identity)
 
-   * populating an empty square, which may fail
-*)
+   * populating an empty square, which may fail *)
 
 (* Types.  We take positions rather than tiles as fundamental -- i.e. a
    position contains a tiles; a tile does not have coordinates. *)
+
+(* Tiles *)
+
 type tile = int option
-type row = tile list
-type board = row list
-type move = L | R | U | D
 
 let empty = None
-
 let t2 = Some 2
 and t4 = Some 4
 and t8 = Some 8
@@ -28,8 +26,14 @@ and t1024 = Some 1024
 and t2048 = Some 2048
 
 let string_of_tile = function
-  | Some s -> string_of_int s
-  | None -> " "
+| Some s -> string_of_int s
+| None -> " "
+
+(* Board *)
+
+type row = tile list
+type board = row list
+type move = L | R | U | D
 
 (* Let's start with the shifts. *)
 
@@ -39,7 +43,8 @@ let string_of_tile = function
    that accumulates empty squares. *)
 let rec shift_left_helper : row -> row -> row =
   (* invariant: length list + length accum = length rhs.
-     Alternatively: everything on the left must appear on the right, including accum.
+     Alternatively: everything on the left must appear on the right,
+     including accum.
   *)
   fun list empties -> match list with
   | [] ->
@@ -65,12 +70,12 @@ let rec transpose = function
   | [] :: _ -> []
   | x -> List.(map hd x :: transpose (map tl x))
 
-let rec shift : move -> board -> board = fun move board ->
+let rec shift_board : move -> board -> board = fun move board ->
   match move with
   | L -> List.map shift_left board
   | R -> List.map shift_right board
-  | U -> transpose (shift L (transpose board))
-  | D -> transpose (shift R (transpose board))
+  | U -> transpose (shift_board L (transpose board))
+  | D -> transpose (shift_board R (transpose board))
 
 (* On to the insertion.  First, some functions for determining whether the
    board is full.  *)
@@ -80,8 +85,8 @@ let is_some = function
   | None -> false
   | Some _ -> true
 
-let is_full_row r = List.for_all is_some r
-let is_full_board b = List.for_all is_full_row b
+let is_row_full r = List.for_all is_some r
+let is_board_full b = List.for_all is_row_full b
 
 (* optionally replace a single item in a list *)
 let rec replace_one p l = match l with
@@ -101,5 +106,5 @@ let insert_into_row (sq : tile) (l : row) : row option = replace_one
   (function None -> Some sq | Some _ -> None) l
 
 (* Populate the first empty spot on a board. *)
-let insert_into_board sq : board -> board option
+let insert_tile sq : board -> board option
   = replace_one (insert_into_row sq)
