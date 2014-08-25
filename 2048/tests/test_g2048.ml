@@ -1,5 +1,5 @@
 open OUnit
-open TwentyFortyEight
+open G2048
 open Board_utils
 
 let mk_board_test = QCheck.mk_test ~n:1000 ~pp:string_of_board
@@ -12,10 +12,10 @@ let check_full_board_property name ?size (prop : board -> bool) =
 
 let test_shift_fixpoint () =
   check_board_property "Shifting reaches a fixpoint after width(board) shifts"
-    (fun board -> 
+    (fun board ->
       let fixed = iter (List.length board) (shift L) board in
       shift L fixed = fixed)
-    
+
 let test_add_to_full () =
   check_full_board_property "Tiles cannot be added to a fully-populated board"
     (fun board -> insert_into_board t2 board = None)
@@ -42,7 +42,7 @@ let test_is_full_board () =
     assert_equal true
       (is_full_board [[t2; t4 ];
                       [t8; t16]]);
-  
+
     assert_equal false
       (is_full_board [[empty]]);
 
@@ -62,7 +62,7 @@ let test_insert () =
    (* rely on the fact that `sort_squares` places empties first *)
     assert (not (is_full_board board));
     (sorted_squares (board_squares (ofSome (insert_into_board square board)))
-     = 
+     =
      sorted_squares (square :: List.tl (sorted_squares (board_squares board))))
   in
   check_board_property "insert_into_board adds a square to the board"
@@ -70,7 +70,7 @@ let test_insert () =
                      ==>
                   (insert_property t8)))
 
-      
+
 
 (* Some tests for movements *)
 let test_movements () =
@@ -93,7 +93,7 @@ let test_movements () =
        [empty; empty; t2   ; t4   ];
        [empty; empty; empty; empty];
        [empty; empty; empty; t16  ]];
-    
+
     assert_equal (shift U board)
       ~printer:string_of_board
       [[t4   ; empty; t2   ; t8   ];

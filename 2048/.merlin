@@ -1,0 +1,12 @@
+PKG gg
+PKG vg
+PKG react
+PKG js_of_ocaml
+PKG ounit
+PKG qcheck
+B _build/src
+B _build/tests
+B _build/useri
+S src
+S tests
+S useri

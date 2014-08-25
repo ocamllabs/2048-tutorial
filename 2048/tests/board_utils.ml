@@ -1,4 +1,4 @@
-open TwentyFortyEight
+open G2048
 
 (** Formatting for boards *)
 let repeat_string n s =
@@ -19,7 +19,7 @@ let string_of_board b =
 (** Generating random boards *)
 let non_empty_tiles = [t2; t4; t8; t16; t32; t64; t128; t256; t512; t1024; t2048]
 let tiles = empty :: non_empty_tiles
-  
+
 let const x _ = x
 let arbitrary_tile : square QCheck.Arbitrary.t =
   QCheck.Arbitrary.among tiles
