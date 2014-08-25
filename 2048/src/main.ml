@@ -5,13 +5,6 @@ open Useri
 
 let log fmt = Format.printf (fmt ^^ "@.")
 
-let test_board () =
-  let open G2048 in
-  [ [t2; t4; t8; t16];
-    [t32; t64; t128; t256];
-    [t512; t1024; t2048; t2];
-    [t2; t2; t2; t2]; ]
-
 let user_moves : G2048.move event =
   let u = E.stamp (Key.up (`Arrow `Up))    G2048.U in
   let d = E.stamp (Key.up (`Arrow `Down))  G2048.D in
@@ -24,7 +17,7 @@ let board : G2048.board signal =
     if G2048.is_board_full board then G2048.create_board () else
     G2048.game_move m board
   in
-  S.accum (E.map move user_moves) (test_board ())
+  S.accum (E.map move user_moves) (G2048.create_board ())
 
 let render_board_img r _ (size, img) =
   let renderable = `Image (size, Box2.unit, img) in
