@@ -57,15 +57,15 @@ let test_is_full_board () =
 
 (* Tests for insert_into_board *)
 let test_insert () =
-  let insert_property square board =
+  let insert_property tile board =
     let ofSome = function Some x -> x | None -> assert false in
-   (* rely on the fact that `sort_squares` places empties first *)
+   (* rely on the fact that `sort_tiles` places empties first *)
     assert (not (is_full_board board));
-    (sorted_squares (board_squares (ofSome (insert_into_board square board)))
+    (sorted_tiles (board_tiles (ofSome (insert_into_board tile board)))
      =
-     sorted_squares (square :: List.tl (sorted_squares (board_squares board))))
+     sorted_tiles (tile :: List.tl (sorted_tiles (board_tiles board))))
   in
-  check_board_property "insert_into_board adds a square to the board"
+  check_board_property "insert_into_board adds a tile to the board"
     QCheck.(Prop.((fun board -> not (is_full_board board))
                      ==>
                   (insert_property t8)))

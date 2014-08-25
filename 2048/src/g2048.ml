@@ -8,8 +8,8 @@
 
 (* Types.  We take positions rather than tiles as fundamental -- i.e. a
    position contains a tiles; a tile does not have coordinates. *)
-type square = int option
-type row = square list
+type tile = int option
+type row = tile list
 type board = row list
 type move = L | R | U | D
 
@@ -27,7 +27,7 @@ and t512 = Some 512
 and t1024 = Some 1024
 and t2048 = Some 2048
 
-let string_of_square = function
+let string_of_tile = function
   | Some s -> string_of_int s
   | None -> " "
 
@@ -43,7 +43,7 @@ let rec shift_left_helper : row -> row -> row =
   *)
   fun list empties -> match list with
   | [] ->
-    empties 
+    empties
   | Some x :: [] ->
     Some x :: empties
   | None :: rest ->
@@ -97,7 +97,7 @@ let rec replace_one p l = match l with
     end
 
 (* Populate the first empty spot in a row. *)
-let insert_into_row (sq : square) (l : row) : row option = replace_one
+let insert_into_row (sq : tile) (l : row) : row option = replace_one
   (function None -> Some sq | Some _ -> None) l
 
 (* Populate the first empty spot on a board. *)
