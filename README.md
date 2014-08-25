@@ -3,7 +3,6 @@ use in tutorials.
 
 Prerequisites:
 
- * [OASIS][oasis]
  * [Gg][gg], basic types for computer graphics
  * [Vg][vg], vector graphics
  * [React][react], functional reactive programming
@@ -20,4 +19,3 @@ Prerequisites:
 [react]: http://erratique.ch/software/react
 [useri]: http://erratique.ch/software/useri 
 [js_of_ocaml]: http://ocsigen.org/js_of_ocaml/
-[oasis]: http://oasis.forge.ocamlcore.org/
