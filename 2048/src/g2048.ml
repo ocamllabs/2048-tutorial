@@ -25,6 +25,7 @@ and t512 = Some 512
 and t1024 = Some 1024
 and t2048 = Some 2048
 
+let tile_value t = t
 let string_of_tile = function
 | Some s -> string_of_int s
 | None -> " "
@@ -33,6 +34,57 @@ let string_of_tile = function
 
 type row = tile list
 type board = row list
+
+let create_board () =
+  [ [t2; empty; empty; empty];
+    [empty; empty; empty; empty];
+    [empty; empty; empty; empty];
+    [empty; empty; empty; t2]; ]
+
+(* On to the insertion.  First, some functions for determining whether the
+   board is full.  *)
+
+let is_row_full r =
+  let is_some = function
+  | None -> false
+  | Some _ -> true
+  in
+  List.for_all is_some r
+
+let is_board_full b = List.for_all is_row_full b
+
+(* optionally replace a single item in a list *)
+let rec replace_one p l = match l with
+| [] -> None
+| x :: xs ->
+    begin match p x with
+    | Some y -> Some (y :: xs)
+    | None ->
+        begin match replace_one p xs with
+        | None -> None
+        | Some ys -> Some (x :: ys)
+        end
+    end
+
+(* Populate the first empty spot in a row. *)
+let insert_into_row (sq : tile) (l : row) : row option =
+  replace_one (function None -> Some sq | Some _ -> None) l
+
+(* Populate the first empty spot on a board. *)
+let insert_tile sq : board -> board option =
+  replace_one (insert_into_row sq)
+
+let board_size board = match board with
+| [] -> (0, 0)
+| r :: _  -> List.length r, List.length board
+
+let fold_board f acc board =
+  let col y (x, acc) tile = x + 1, (f acc (x, y) tile) in
+  let row (y, acc) row = y + 1, snd (List.fold_left (col y) (0, acc) row) in
+  snd (List.fold_left row (0, acc) (List.rev board))
+
+(* Moves *)
+
 type move = L | R | U | D
 
 (* Let's start with the shifts. *)
@@ -77,34 +129,8 @@ let rec shift_board : move -> board -> board = fun move board ->
   | U -> transpose (shift_board L (transpose board))
   | D -> transpose (shift_board R (transpose board))
 
-(* On to the insertion.  First, some functions for determining whether the
-   board is full.  *)
-
-(* (This is also in Core.) *)
-let is_some = function
-  | None -> false
-  | Some _ -> true
-
-let is_row_full r = List.for_all is_some r
-let is_board_full b = List.for_all is_row_full b
-
-(* optionally replace a single item in a list *)
-let rec replace_one p l = match l with
-  | [] -> None
-  | x :: xs ->
-    begin match p x with
-    | Some y -> Some (y :: xs)
-    | None ->
-      begin match replace_one p xs with
-      | None -> None
-      | Some ys -> Some (x :: ys)
-      end
-    end
-
-(* Populate the first empty spot in a row. *)
-let insert_into_row (sq : tile) (l : row) : row option = replace_one
-  (function None -> Some sq | Some _ -> None) l
-
-(* Populate the first empty spot on a board. *)
-let insert_tile sq : board -> board option
-  = replace_one (insert_into_row sq)
+let game_move move board =
+  let board' = shift_board move board in
+  match insert_tile t2 board' with
+  | None -> board'
+  | Some board'' -> board''
