@@ -14,8 +14,7 @@ action ()
     case $1 in
         default) 
             action app 
-            action test 
-            action doc
+            action test
             ;;
         app)
             shift
