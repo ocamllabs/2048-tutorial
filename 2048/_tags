@@ -1,0 +1,13 @@
+<**/*.{ml,mli}> : bin_annot, annot, debug
+
+<src> : include
+<src/*> : package(vg), package(vg.htmlc), package(react), package(js_of_ocaml)
+<src/*.js> : weak_js
+
+<useri> : include
+<useri/*> : package(gg), package(react)
+<useri/*jsoo*> : package(js_of_ocaml), package(js_of_ocaml.syntax), \
+                 syntax(camlp4o)
+
+<tests> : include
+<tests/*> : package(oUnit), package(qcheck)
