@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -e
+
+OCAMLBUILD=${OCAMLBUILD:="ocamlbuild -classic-display \
+                          -use-ocamlfind \
+                          -plugin-tag package(js_of_ocaml.ocamlbuild)"}
+
+OCAMLDOCFLAGS=${OCAMLDOCFLAGS:="-docflags -colorize-code,-charset,utf-8"}
+RELOAD_BROWSER=${RELOAD_BROWSER="./support/reload-browser"}
+
+action ()
+{
+    case $1 in
+        default) 
+            action app 
+            action test
+            ;;
+        app)
+            shift
+            $OCAMLBUILD -no-links main.js 2048.html
+            if [ "$1" == "-b" ]; then
+                $RELOAD_BROWSER "file://`pwd`/_build/src/2048.html"
+            fi
+            ;;
+        test)
+            $OCAMLBUILD test_g2048.native
+            ./test_g2048.native
+            ;;
+        doc)
+            shift
+            $OCAMLBUILD -no-links $OCAMLDOCFLAGS doc/api.docdir/index.html
+            cp doc/style.css _build/doc/api.docdir/
+            if [ "$1" == "-b" ]; then
+                $RELOAD_BROWSER "file://`pwd`/_build/doc/api.docdir/"
+            fi
+            ;;
+        clean)
+            $OCAMLBUILD -clean ;;
+        *)
+            $OCAMLBUILD $* ;;
+    esac
+}
+
+if [ $# -eq 0 ];
+then action default ;
+else action $*; fi
