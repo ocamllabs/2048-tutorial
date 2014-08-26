@@ -14,7 +14,7 @@ let test_shift_board_fixpoint () =
   check_board_property "Shifting reaches a fixpoint after width(board) shifts"
     (fun board ->
       let fixed = iter (List.length board) (shift_board L) board in
-      shift_board L fixed = fixed)
+      board_equal (shift_board L fixed) fixed)
 
 let test_add_to_full () =
   check_full_board_property "Squares cannot be added to a fully-populated board"
@@ -81,6 +81,7 @@ let test_movements () =
   in
   begin
     assert_equal (shift_board L board)
+      ~cmp:board_equal
       ~printer:string_of_board
       [[t4   ; t4   ; empty; empty];
        [t2   ; t4   ; empty; empty];
@@ -88,6 +89,7 @@ let test_movements () =
        [t16  ; empty; empty; empty]];
 
     assert_equal (shift_board R board)
+      ~cmp:board_equal
       ~printer:string_of_board
       [[empty; empty; t4   ; t4   ];
        [empty; empty; t2   ; t4   ];
@@ -95,6 +97,7 @@ let test_movements () =
        [empty; empty; empty; t16  ]];
 
     assert_equal (shift_board U board)
+      ~cmp:board_equal
       ~printer:string_of_board
       [[t4   ; empty; t2   ; t8   ];
        [empty; empty; t8   ; t8   ];
@@ -102,6 +105,7 @@ let test_movements () =
        [empty; empty; empty; empty]];
 
     assert_equal (shift_board D board)
+      ~cmp:board_equal
       ~printer:string_of_board
       [[empty; empty; empty; empty];
        [empty; empty; empty; empty];
@@ -109,6 +113,7 @@ let test_movements () =
        [t4   ; empty; t8   ; t8   ]];
 
     assert_equal (shift_board L (shift_board L board))
+      ~cmp:board_equal
       ~printer:string_of_board
       [[t8   ; empty; empty; empty];
        [t2   ; t4   ; empty; empty];
@@ -116,11 +121,79 @@ let test_movements () =
        [t16  ; empty; empty; empty]];
 
     assert_equal (shift_board U (shift_board U board))
+      ~cmp:board_equal
       ~printer:string_of_board
       [[t4   ; empty; t2   ; t16  ];
        [empty; empty; t8   ; empty];
        [empty; empty; empty; empty];
        [empty; empty; empty; empty]];
+  end
+
+(* Some tests for provenance *)
+let test_provenance () =
+  let board = [[t2   ; empty; t2   ; t4   ];
+               [t2   ; empty; empty; t4   ];
+               [empty; empty; empty; empty];
+               [empty; empty; t8   ; t8   ]]
+  in
+  begin
+    let false_board = [[false; false; false; false];
+                       [false; false; false; false];
+                       [false; false; false; false];
+                       [false; false; false; false]] in
+
+    assert_equal (board_news (shift_board L board)) false_board;
+    assert_equal (board_news (shift_board R board)) false_board;
+    assert_equal (board_news (shift_board U board)) false_board;
+    assert_equal (board_news (shift_board D board)) false_board;
+
+    assert_equal (board_prevs (shift_board L board))
+      [[Some 2 ; Some 4; None; None] ;
+       [Some 2 ; Some 4; None; None] ;
+       [None   ; None  ; None; None] ;
+       [Some 8 ; None  ; None; None]];
+
+    assert_equal (board_prevs (shift_board R board))
+      [[None; None; Some 2; Some 4] ;
+       [None; None; Some 2; Some 4] ;
+       [None; None; None  ; None  ] ;
+       [None; None; None  ; Some 8]];
+
+    assert_equal (board_prevs (shift_board U board))
+      [[Some 2; None; Some 2; Some 4];
+       [None  ; None; Some 8; Some 8];
+       [None  ; None; None  ; None  ];
+       [None  ; None; None  ; None  ]];
+
+    assert_equal (board_prevs (shift_board D board))
+      [[None  ; None; None  ; None  ];
+       [None  ; None; None  ; None  ];
+       [None  ; None; Some 2; Some 4];
+       [Some 2; None; Some 8; Some 8]];
+
+    assert_equal (board_shifts (shift_board L board))
+      [[Some 0 ; Some 2; None; None] ;
+       [Some 0 ; Some 2; None; None] ;
+       [None   ; None  ; None; None] ;
+       [Some 2 ; None  ; None; None]];
+
+    assert_equal (board_shifts (shift_board R board))
+      [[None; None; Some 0; Some 0] ;
+       [None; None; Some 2; Some 0] ;
+       [None; None; None  ; None  ] ;
+       [None; None; None  ; Some 0]];
+
+    assert_equal (board_shifts (shift_board U board))
+      [[Some 0; None; Some 0; Some 0] ;
+       [None  ; None; Some 2; Some 2] ;
+       [None  ; None; None  ; None  ] ;
+       [None  ; None; None  ; None  ]];
+
+    assert_equal (board_shifts (shift_board D board))
+      [[None  ; None; None  ; None  ] ;
+       [None  ; None; None  ; None  ] ;
+       [None  ; None; Some 2; Some 1] ;
+       [Some 2; None; Some 0; Some 0]];
   end
 
 let suite = "2048 tests" >:::
@@ -141,6 +214,9 @@ let suite = "2048 tests" >:::
 
    "test movements"
     >:: test_movements;
+
+   "test provenance"
+    >:: test_provenance;
   ]
 let _ =
   run_test_tt_main suite

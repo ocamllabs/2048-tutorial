@@ -47,6 +47,17 @@ val square_value : square -> int option
 val string_of_square : square -> string
 (** [string_of_square t] is [t] as a string. *)
 
+val is_new_square : square -> bool
+(** [is_new_square t] indicates whether [t] is freshly inserted. *)
+
+val square_shift : square -> int option
+(** [square_shift t] indicates how far the current occupant shifted to
+    reach its current position. *)
+
+val square_previous : square -> int option
+(** [square_previous_value t] indicates the previous value of the
+    current occupant of the square. *)
+
 (** {1 Boards} *)
 
 type row = square list

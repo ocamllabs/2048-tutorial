@@ -38,3 +38,13 @@ let rec iter n f x = if n = 0 then x else iter (n - 1) f (f x)
 
 let sorted_squares : square list -> square list = List.sort Pervasives.compare
 let board_squares = List.concat
+
+let board_map f b = List.map (List.map f) b
+
+let square_equal l r = square_value l = square_value r
+let row_equal = List.for_all2 square_equal
+let board_equal = List.for_all2 row_equal
+
+let board_shifts = board_map square_shift
+let board_prevs = board_map square_previous
+let board_news = board_map is_new_square

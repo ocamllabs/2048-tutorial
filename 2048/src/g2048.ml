@@ -10,25 +10,65 @@
 
 (* Squares *)
 
-type square = int option
+type move_info = { last_shift : int; last_value : int }
+
+type provenance = Move of move_info | New
+type tile = int * provenance
+
+type square = tile option 
 
 let empty = None
-let t2 = Some 2
-and t4 = Some 4
-and t8 = Some 8
-and t16 = Some 16
-and t32 = Some 32
-and t64 = Some 64
-and t128 = Some 128
-and t256 = Some 256
-and t512 = Some 512
-and t1024 = Some 1024
-and t2048 = Some 2048
+let t2 = Some (2, New)
+and t4 = Some (4, New)
+and t8 = Some (8, New)
+and t16 = Some (16, New)
+and t32 = Some (32, New)
+and t64 = Some (64, New)
+and t128 = Some (128, New)
+and t256 = Some (256, New)
+and t512 = Some (512, New)
+and t1024 = Some (1024, New)
+and t2048 = Some (2048, New)
 
-let square_value t = t
+(* Replace the provenance of a square with the no-move provenance. *)
+let clear_provenance t =
+  match t with
+  | None -> None
+  | Some (t, _) -> Some (t, Move { last_shift = 0; last_value = t} )
+
+(* Update the provenance of a square after a shift. *)
+let shift_square t =
+  match t with
+  | None -> None
+  | Some (t, New) -> Some(t, Move { last_shift = 1; last_value = t })
+  | Some (t, Move m) -> Some (t, Move { m with last_shift = m.last_shift + 1 })
+
+let square_value t =
+  match t with
+  | None -> None
+  | Some (v, _) -> Some v
+
 let string_of_square = function
-| Some s -> string_of_int s
+| Some (s, _) -> string_of_int s
 | None -> " "
+
+let is_new_square t =
+  match t with
+  | None -> false
+  | Some (_, New) -> true
+  | Some (_, _) -> false
+
+let square_shift t =
+  match t with
+  | None -> None
+  | Some (_, New) -> None
+  | Some (_, Move { last_shift }) -> Some last_shift
+
+let square_previous t =
+  match t with
+  | None -> None
+  | Some (_, New) -> None
+  | Some (_, Move { last_value }) -> Some last_value
 
 (* Board *)
 
@@ -100,18 +140,18 @@ let rec shift_left_helper : row -> row -> row =
   *)
   fun list empties -> match list with
   | [] ->
-    empties
+     empties
   | None :: rest ->
-    shift_left_helper rest (None :: empties)
-  | Some x :: Some y :: rest when x = y ->
-    Some (x + y) :: shift_left_helper rest (None :: empties)
+     shift_left_helper (List.map shift_square rest) (None :: empties)
+  | Some (x, prov) :: Some (y, _) :: rest when x = y ->
+     Some (x + y, prov) :: shift_left_helper (List.map shift_square rest) (None :: empties)
   | Some x :: None :: rest ->
-    shift_left_helper (Some x :: rest) (None :: empties)
-  | Some x :: r ->
-    Some x :: shift_left_helper r empties
+     shift_left_helper (Some x :: List.map shift_square rest) (None :: empties)
+  | Some (x, prov) :: r ->
+     Some (x, prov) :: shift_left_helper r empties
 
 (* [shift_left] starts with an empty accumulator *)
-let shift_left l = shift_left_helper l []
+let shift_left l = shift_left_helper (List.map clear_provenance l) []
 let shift_right l = List.rev (shift_left (List.rev l))
 
 (* This is partial.  There's also an implementation in Jane Street's Core. *)
