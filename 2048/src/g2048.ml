@@ -101,16 +101,14 @@ let rec shift_left_helper : row -> row -> row =
   fun list empties -> match list with
   | [] ->
     empties
-  | Some x :: [] ->
-    Some x :: empties
   | None :: rest ->
     shift_left_helper rest (None :: empties)
-  | Some x :: None :: rest ->
-    shift_left_helper (Some x :: rest) (None :: empties)
   | Some x :: Some y :: rest when x = y ->
     Some (x + y) :: shift_left_helper rest (None :: empties)
-  | Some x :: Some y :: rest ->
-    Some x :: shift_left_helper (Some y :: rest) empties
+  | Some x :: None :: rest ->
+    shift_left_helper (Some x :: rest) (None :: empties)
+  | Some x :: r ->
+    Some x :: shift_left_helper r empties
 
 (* [shift_left] starts with an empty accumulator *)
 let shift_left l = shift_left_helper l []
