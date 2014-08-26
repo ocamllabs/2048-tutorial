@@ -3,11 +3,11 @@ open Vg
 
 (* Colors *)
 
-let tile_colors tile =
+let square_colors square =
   let whiteish   = Color.v_srgbi 0xf9 0xf6 0xf2 in
   let brownish   = Color.v_srgbi 0x77 0x6e 0x65 in
   let background = Color.v_srgbi ~a:0.35 238 228 218 in
-  match G2048.tile_value tile with
+  match G2048.square_value square with
   | None      -> background, brownish
   | Some 2    -> Color.v_srgbi 0xee 0xe4 0xda, brownish
   | Some 4    -> Color.v_srgbi 0xed 0xe0 0xc8, brownish
@@ -30,26 +30,26 @@ let msg_color = Color.v_srgbi 0x77 0x6e 0x65
 let base_font =
   { Font.name = "Arial"; slant = `Normal; weight = `W700; size = 1.0; }
 
-let tile_font box tile =
+let square_font box square =
   let count_digits n =                   (* number of decimal digits in n. *)
     let rec loop count n = if n = 0 then count else loop (count + 1) (n / 10) in
     if n = 0 then 1 else loop 0 n
   in
-  let tile_num = match G2048.tile_value tile with None -> 1 | Some n -> n in
-  let digits = float (count_digits tile_num) in
+  let square_num = match G2048.square_value square with None -> 1 | Some n -> n in
+  let digits = float (count_digits square_num) in
   let adjust = if digits > 2. then 1. /. (0.4 *. digits) else 1. in
   let size = 0.6 *. adjust *. Box2.h box in
   let offset = V2.v (-0.28 *. size *. digits) (-. 0.38 *. size) in
   { base_font with Font.size = size }, offset
 
-(* Rendering tiles *)
+(* Rendering squares *)
 
-let image_of_tile box tile =
-  let back, front = tile_colors tile in
-  let tile_font, offset = tile_font box tile in
-  let tile_label = G2048.string_of_tile tile in
+let image_of_square box square =
+  let back, front = square_colors square in
+  let square_font, offset = square_font box square in
+  let square_label = G2048.string_of_square square in
   let label_origin = V2.(Box2.mid box + offset) in
-  let label = I.cut_glyphs ~text:tile_label tile_font [] (I.const front) in
+  let label = I.cut_glyphs ~text:square_label square_font [] (I.const front) in
   I.cut P.(empty >> rect box) (I.const back) >>
   I.blend (label >> I.move label_origin)
 
@@ -67,12 +67,12 @@ let image_of_board board = match G2048.board_size board with
     let board_size = Size2.v (float w) (float h) in
     let pad_size = V2.(0.03 * (v (Size2.aspect board_size) 1.)) in
     let pad_cumulated_size = V2.(mul (Size2.unit + board_size) pad_size) in
-    let tile_size = V2.(div (Size2.unit - pad_cumulated_size) board_size) in
-    let add_tile acc (x, y) tile =
+    let square_size = V2.(div (Size2.unit - pad_cumulated_size) board_size) in
+    let add_square acc (x, y) square =
       let ipos = P2.v (float x) (float y) in
-      let pos = V2.(pad_size + mul ipos (pad_size + tile_size)) in
-      let box = Box2.v pos tile_size in
-      acc >> I.blend (image_of_tile box tile)
+      let pos = V2.(pad_size + mul ipos (pad_size + square_size)) in
+      let box = Box2.v pos square_size in
+      acc >> I.blend (image_of_square box square)
     in
-    G2048.fold_board add_tile (I.const board_background) board >>
+    G2048.fold_board add_square (I.const board_background) board >>
     I.blend (if G2048.is_board_full board then full_overlay else I.void)

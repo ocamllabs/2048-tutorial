@@ -17,15 +17,15 @@ let test_shift_board_fixpoint () =
       shift_board L fixed = fixed)
 
 let test_add_to_full () =
-  check_full_board_property "Tiles cannot be added to a fully-populated board"
-    (fun board -> insert_tile t2 board = None)
+  check_full_board_property "Squares cannot be added to a fully-populated board"
+    (fun board -> insert_square t2 board = None)
 
 let test_add () =
-  check_board_property "Tiles cannot be added to a fully-populated board"
+  check_board_property "Squares cannot be added to a fully-populated board"
     QCheck.(Prop.((fun board -> not (is_board_full board))
                   ==>
                   (fun board ->
-                    insert_tile t2 board <> None)))
+                    insert_square t2 board <> None)))
 
 (* Some tests for is_board_board *)
 let test_is_board_full () =
@@ -57,15 +57,15 @@ let test_is_board_full () =
 
 (* Tests for insert_into_board *)
 let test_insert () =
-  let insert_property tile board =
+  let insert_property square board =
     let ofSome = function Some x -> x | None -> assert false in
-   (* rely on the fact that `sort_tiles` places empties first *)
+   (* rely on the fact that `sort_squares` places empties first *)
     assert (not (is_board_full board));
-    (sorted_tiles (board_tiles (ofSome (insert_tile tile board)))
+    (sorted_squares (board_squares (ofSome (insert_square square board)))
      =
-     sorted_tiles (tile :: List.tl (sorted_tiles (board_tiles board))))
+     sorted_squares (square :: List.tl (sorted_squares (board_squares board))))
   in
-  check_board_property "insert_into_board adds a tile to the board"
+  check_board_property "insert_into_board adds a square to the board"
     QCheck.(Prop.((fun board -> not (is_board_full board))
                      ==>
                   (insert_property t8)))
@@ -127,10 +127,10 @@ let suite = "2048 tests" >:::
   ["a fixpoint is reached after width(board) shift_boards"
     >:: test_shift_board_fixpoint;
 
-   "tiles can be added to a board that is not fully-populated"
+   "squares can be added to a board that is not fully-populated"
     >:: test_add;
 
-   "tiles cannot be added to a fully-populated board"
+   "squares cannot be added to a fully-populated board"
     >:: test_add_to_full;
 
    "test is_board_full"

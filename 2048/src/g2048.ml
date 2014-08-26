@@ -5,12 +5,12 @@
 
    * populating an empty square, which may fail *)
 
-(* Types.  We take positions rather than tiles as fundamental -- i.e. a
-   position contains a tiles; a tile does not have coordinates. *)
+(* Types.  We take squares rather than tiles as fundamental -- i.e. a
+   square contains a tile; a tile does not have coordinates. *)
 
-(* Tiles *)
+(* Squares *)
 
-type tile = int option
+type square = int option
 
 let empty = None
 let t2 = Some 2
@@ -25,14 +25,14 @@ and t512 = Some 512
 and t1024 = Some 1024
 and t2048 = Some 2048
 
-let tile_value t = t
-let string_of_tile = function
+let square_value t = t
+let string_of_square = function
 | Some s -> string_of_int s
 | None -> " "
 
 (* Board *)
 
-type row = tile list
+type row = square list
 type board = row list
 
 let create_board () =
@@ -67,11 +67,11 @@ let rec replace_one p l = match l with
     end
 
 (* Populate the first empty spot in a row. *)
-let insert_into_row (sq : tile) (l : row) : row option =
+let insert_into_row (sq : square) (l : row) : row option =
   replace_one (function None -> Some sq | Some _ -> None) l
 
 (* Populate the first empty spot on a board. *)
-let insert_tile sq : board -> board option =
+let insert_square sq : board -> board option =
   replace_one (insert_into_row sq)
 
 let board_size board = match board with
@@ -79,7 +79,7 @@ let board_size board = match board with
 | r :: _  -> List.length r, List.length board
 
 let fold_board f acc board =
-  let col y (x, acc) tile = x + 1, (f acc (x, y) tile) in
+  let col y (x, acc) square = x + 1, (f acc (x, y) square) in
   let row (y, acc) row = y + 1, snd (List.fold_left (col y) (0, acc) row) in
   snd (List.fold_left row (0, acc) (List.rev board))
 
@@ -131,6 +131,6 @@ let rec shift_board : move -> board -> board = fun move board ->
 
 let game_move move board =
   let board' = shift_board move board in
-  match insert_tile t2 board' with
+  match insert_square t2 board' with
   | None -> board'
   | Some board'' -> board''
