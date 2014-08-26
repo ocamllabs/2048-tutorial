@@ -4,10 +4,10 @@
    %%NAME%% release %%VERSION%%
   ---------------------------------------------------------------------------*)
 
+(** Useri [js_of_ocaml] backend specific functions. *)
+
 open Gg
 open React
-
-(** Useri [js_of_ocaml] backend specific functions. *)
 
 (** User keyboard.
 
@@ -30,6 +30,18 @@ module Key : sig
       calling {!Useri.App.init}. And a {!Useri.App.release} sets
       the event target back to [None]. *)
 
+(** {1:capture Keyboard event capture} *)
+
+  val key_capture : unit -> (Useri_base.Key.id -> bool)
+  (** [key_capture ()] is the function that determines whether key
+      events related to a key are captured by Useri (i.e prevent
+      default action and stop propagation). The initial function never
+      captures. *)
+
+  val set_key_capture : (Useri_base.Key.id -> bool) -> unit
+  (** [set_capture_key capture] sets the function returned
+      by {!key_capture}. *)
+
 (** {1:get Getting keyboard events}
 
     There are a few things you need to make sure are setup in order
@@ -50,6 +62,15 @@ module Key : sig
     application. For example using the {!Dom_html.window} will prevent
     the user from having to focus in order for you to get keyboard
     events.
+
+    By default keyboard event will not stop propagating and will perform
+    their default action. You can prevent that to occur on certain keys
+    by registering a function with {!set_key_capture}. Note that
+    in certain browsers (e.g. Safari) it is not possible to prevent
+    the default action of certain key strokes.
+
+    {b Fullscreen.} Note that in general in fullscreen mode you may
+    not get keyboard events or only some of them for security reasons.
 
     {1:limits Limitations}
 
