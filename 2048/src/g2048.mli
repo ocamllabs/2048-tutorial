@@ -58,6 +58,16 @@ val square_previous : square -> int option
 (** [square_previous_value t] indicates the previous value of the
     current occupant of the square. *)
 
+(** {1 Provenance} *)
+type move_info = { last_shift : int; last_value : int }
+(** Details about the most recent move for a tile *)
+
+type provenance = Move of move_info | New
+(** The provenance of a tile *)
+
+val square_provenance : square -> provenance option
+(** [square_provenance s] is the provenance of a square, if the square is occupied. *)
+
 (** {1 Boards} *)
 
 type row = square list

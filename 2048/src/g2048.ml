@@ -48,6 +48,11 @@ let square_value t =
   | None -> None
   | Some (v, _) -> Some v
 
+let square_provenance t =
+  match t with
+  | None -> None
+  | Some (_, p) -> Some p
+
 let string_of_square = function
 | Some (s, _) -> string_of_int s
 | None -> " "
