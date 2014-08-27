@@ -232,6 +232,25 @@ let test_provenance () =
        [Some 2; None; Some 0; Some 0]];
   end
 
+(* Some tests for scoring *)
+let test_scoring () =
+  begin
+    assert_equal 0
+     (last_move_score
+        (shift_board L
+           [[empty; t2  ; t8   ];
+            [empty; t4  ; t16  ];
+            [t1024; t512; t1024]]));
+
+    assert_equal (2*2 + 2*16 + 2*512)
+     (last_move_score
+        (shift_board L
+           [[t2   ; t2   ; t8  ];
+            [empty; t16  ; t16 ];
+            [t512 ; empty; t512]]));
+  end
+
+
 let suite = "2048 tests" >:::
   ["a fixpoint is reached after width(board) shift_boards"
     >:: test_shift_board_fixpoint;
@@ -256,6 +275,9 @@ let suite = "2048 tests" >:::
 
    "test is_board_winning"
     >:: test_is_board_winning;
+
+   "test scoring"
+    >:: test_scoring;
   ]
 let _ =
   run_test_tt_main suite

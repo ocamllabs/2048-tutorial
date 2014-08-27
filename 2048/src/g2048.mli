@@ -99,3 +99,6 @@ val shift_board : move -> board -> board
 val game_move : move -> board -> board
 (** [game_move move board] is the board resulting from shifting [board]
     in direction [move] and inserts a new square if the board is not full. *)
+
+val last_move_score : board -> int
+(** [last_move_score board] is the score achieved by the last move. *)

@@ -179,3 +179,17 @@ let game_move move board =
   match insert_square t2 board' with
   | None -> board'
   | Some board'' -> board''
+
+let square_score t =
+  match t with
+  | None -> 0
+  | Some (t, Move { last_value }) when last_value <> t -> t
+  | Some (t, _) -> 0
+
+let sum = List.fold_left (+) 0
+
+let last_move_row_score row =
+ sum (List.map square_score row)
+
+let last_move_score board =
+ sum (List.map last_move_row_score board)
