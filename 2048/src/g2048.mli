@@ -50,23 +50,12 @@ val string_of_square : square -> string
 val is_new_tile : square -> bool
 (** [is_new_tile t] indicates whether [t] is freshly inserted. *)
 
-val tile_shift : square -> int option
-(** [tile_shift t] indicates how far the current occupant shifted to
-    reach its current position. *)
-
-val shifted_tile_value : square -> int option
-(** [shifted_tile_value t] indicates the previous value of the current
-    occupant of the square. *)
-
 (** {1 Provenance} *)
-type move_info = { last_shift : int; last_value : int }
-(** Details about the most recent move for a tile *)
-
-type provenance = Move of move_info | New
+type provenance = { shift : int; value : int }
 (** The provenance of a tile *)
 
-val square_provenance : square -> provenance option
-(** [square_provenance s] is the provenance of a square, if the square is occupied. *)
+val square_provenance : square -> provenance list
+(** [square_provenance s] is the provenance of a square. *)
 
 (** {1 Boards} *)
 

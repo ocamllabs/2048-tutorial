@@ -45,6 +45,4 @@ let square_equal l r = square_value l = square_value r
 let row_equal = List.for_all2 square_equal
 let board_equal = List.for_all2 row_equal
 
-let board_shifts = board_map tile_shift
-let board_prevs = board_map shifted_tile_value
-let board_news = board_map is_new_tile
+let board_provenance = board_map square_provenance

@@ -10,38 +10,37 @@
 
 (* Squares *)
 
-type move_info = { last_shift : int; last_value : int }
+type provenance = { shift : int; value : int }
 
-type provenance = Move of move_info | New
-type tile = int * provenance
+type tile = int * provenance list
 
 type square = tile option 
 
 let empty = None
-let t2 = Some (2, New)
-and t4 = Some (4, New)
-and t8 = Some (8, New)
-and t16 = Some (16, New)
-and t32 = Some (32, New)
-and t64 = Some (64, New)
-and t128 = Some (128, New)
-and t256 = Some (256, New)
-and t512 = Some (512, New)
-and t1024 = Some (1024, New)
-and t2048 = Some (2048, New)
+let t2 = Some (2, [])
+and t4 = Some (4, [])
+and t8 = Some (8, [])
+and t16 = Some (16, [])
+and t32 = Some (32, [])
+and t64 = Some (64, [])
+and t128 = Some (128, [])
+and t256 = Some (256, [])
+and t512 = Some (512, [])
+and t1024 = Some (1024, [])
+and t2048 = Some (2048, [])
 
 (* Replace the provenance of a square with the no-move provenance. *)
 let clear_provenance t =
   match t with
   | None -> None
-  | Some (t, _) -> Some (t, Move { last_shift = 0; last_value = t} )
+  | Some (t, _) -> Some (t, [{ shift = 0; value = t}] )
 
 (* Update the provenance of a square after a shift. *)
 let shift_square t =
   match t with
   | None -> None
-  | Some (t, New) -> Some(t, Move { last_shift = 1; last_value = t })
-  | Some (t, Move m) -> Some (t, Move { m with last_shift = m.last_shift + 1 })
+  | Some (t, []) -> Some(t, [{ shift = 1; value = t }])
+  | Some (t, m :: _) -> Some (t, [{ m with shift = m.shift + 1 }])
 
 let square_value t =
   match t with
@@ -50,8 +49,8 @@ let square_value t =
 
 let square_provenance t =
   match t with
-  | None -> None
-  | Some (_, p) -> Some p
+  | None -> []
+  | Some (_, p) -> p
 
 let string_of_square = function
 | Some (s, _) -> string_of_int s
@@ -60,20 +59,8 @@ let string_of_square = function
 let is_new_tile t =
   match t with
   | None -> false
-  | Some (_, New) -> true
+  | Some (_, []) -> true
   | Some (_, _) -> false
-
-let tile_shift t =
-  match t with
-  | None -> None
-  | Some (_, New) -> None
-  | Some (_, Move { last_shift }) -> Some last_shift
-
-let shifted_tile_value t =
-  match t with
-  | None -> None
-  | Some (_, New) -> None
-  | Some (_, Move { last_value }) -> Some last_value
 
 let is_square_2048 t =
   match t with
@@ -164,8 +151,8 @@ let rec shift_left_helper : row -> row -> row =
      empties
   | None :: rest ->
      shift_left_helper (List.map shift_square rest) (None :: empties)
-  | Some (x, prov) :: Some (y, _) :: rest when x = y ->
-     Some (x + y, prov) :: shift_left_helper (List.map shift_square rest) (None :: empties)
+  | Some (x, xprov) :: Some (y, {shift; value} :: _) :: rest when x = y ->
+     Some (x + y, xprov @ [{shift = shift + 1; value}]) :: shift_left_helper (List.map shift_square rest) (None :: empties)
   | Some x :: None :: rest ->
      shift_left_helper (Some x :: List.map shift_square rest) (None :: empties)
   | Some (x, prov) :: r ->
@@ -197,16 +184,16 @@ let game_move move board =
 let square_score t =
   match t with
   | None -> 0
-  | Some (t, Move { last_value }) when last_value <> t -> t
+  | Some (t, m1 :: m2 :: _) -> m1.value + m2.value
   | Some (t, _) -> 0
 
 let sum = List.fold_left (+) 0
 
-let last_move_row_score row =
+let move_row_score row =
  sum (List.map square_score row)
 
 let last_move_score board =
- sum (List.map last_move_row_score board)
+ sum (List.map move_row_score board)
 
 let is_game_over b =
    not (List.exists is_moveable_row b || List.exists is_moveable_row (transpose b))
