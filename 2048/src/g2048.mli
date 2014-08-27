@@ -86,6 +86,9 @@ val insert_square : square -> board -> board option
 val is_board_full : board -> bool
 (** [is_board_full board] is [true] iff the [board] is full. *)
 
+val is_game_over : board -> bool
+(** [is_game_over board] is [true] iff there are no valid moves. *)
+
 val is_board_winning : board -> bool
 (** [is_board_winning board] is [true] iff the [board] is a winning board. *)
 

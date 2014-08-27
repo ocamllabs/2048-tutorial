@@ -251,6 +251,51 @@ let test_scoring () =
   end
 
 
+(* Some tests for the game over condition *)
+let test_game_over () =
+  begin
+    assert_equal true
+      ~msg:"The game is over if the board is empty"
+     (is_game_over
+        []);
+
+    assert_equal false
+      ~msg:"The game is not over if there are empty squares"
+     (is_game_over
+        [[empty; t2  ; t8   ];
+         [empty; t4  ; t16  ];
+         [t1024; t512; t1024]]);
+
+    assert_equal false
+      ~msg:"The game is not over if there is an empty square on the edge"
+     (is_game_over
+        [[t8   ; t2  ; t8   ];
+         [empty; t4  ; t16  ];
+         [t1024; t512; t1024]]);
+
+    assert_equal false
+      ~msg:"The game is not over if there is an empty square in the centre"
+     (is_game_over
+        [[t8   ; t2   ; t8   ];
+         [t16  ; empty; t16  ];
+         [t1024; t512 ; t1024]]);
+
+    assert_equal false
+      ~msg:"The game is not over if there is a vertical tile-squashing move"
+     (is_game_over
+        [[t8   ; t2   ; t8   ];
+         [t16  ; t512 ; t16  ];
+         [t1024; t512 ; t1024]]);
+
+    assert_equal false
+      ~msg:"The game is not over if there is a horizontal tile-squashing move"
+     (is_game_over
+        [[t8   ; t2    ; t8   ];
+         [t16  ; t8    ; t16  ];
+         [t8   ; t1024 ; t1024]]);
+  end
+
+
 let suite = "2048 tests" >:::
   ["a fixpoint is reached after width(board) shift_boards"
     >:: test_shift_board_fixpoint;
@@ -278,6 +323,9 @@ let suite = "2048 tests" >:::
 
    "test scoring"
     >:: test_scoring;
+
+   "test game over"
+    >:: test_game_over;
   ]
 let _ =
   run_test_tt_main suite

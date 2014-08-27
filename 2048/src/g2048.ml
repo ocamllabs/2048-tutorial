@@ -101,6 +101,15 @@ let is_row_full r =
   in
   List.for_all is_some r
 
+let rec is_moveable_row r =
+  (* A row is moveable if it contains empty squares, or if adjacent
+     tiles have the same value *)
+  match r with
+      [] -> false
+    | None :: _ -> true
+    | Some (x, _) :: Some (y, _) :: _ when x = y -> true
+    | Some _ :: rest -> is_moveable_row rest
+
 let is_board_full b = List.for_all is_row_full b
 
 let is_board_winning = List.exists (List.exists is_square_2048)
@@ -198,3 +207,6 @@ let last_move_row_score row =
 
 let last_move_score board =
  sum (List.map last_move_row_score board)
+
+let is_game_over b =
+   not (List.exists is_moveable_row b || List.exists is_moveable_row (transpose b))
