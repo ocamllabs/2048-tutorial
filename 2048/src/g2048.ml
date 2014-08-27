@@ -70,6 +70,11 @@ let square_previous t =
   | Some (_, New) -> None
   | Some (_, Move { last_value }) -> Some last_value
 
+let is_square_2048 t =
+  match t with
+  | Some (2048, _) -> true
+  | _ -> false  
+
 (* Board *)
 
 type row = square list
@@ -92,6 +97,8 @@ let is_row_full r =
   List.for_all is_some r
 
 let is_board_full b = List.for_all is_row_full b
+
+let is_board_winning = List.exists (List.exists is_square_2048)
 
 (* optionally replace a single item in a list *)
 let rec replace_one p l = match l with

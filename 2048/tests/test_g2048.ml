@@ -27,7 +27,7 @@ let test_add () =
                   (fun board ->
                     insert_square t2 board <> None)))
 
-(* Some tests for is_board_board *)
+(* Some tests for is_board_full *)
 let test_is_board_full () =
   begin
     check_full_board_property "Randomly generated full boards are full"
@@ -53,6 +53,42 @@ let test_is_board_full () =
     assert_equal false
       (is_board_full [[empty; empty];
                       [empty; empty]]);
+  end
+
+(* Some tests for is_board_winning *)
+let test_is_board_winning () =
+  begin
+    assert_equal false
+      (is_board_winning []);
+
+    assert_equal true
+      (is_board_winning [[t2048]]);
+
+    assert_equal true
+      (is_board_winning (shift_board L [[t2048]]));
+
+    assert_equal false
+      (is_board_winning [[t2; t4 ];
+                         [t8; t16]]);
+
+    assert_equal true
+      (is_board_winning [[t2048; t2 ];
+                         [t8   ; t16]]);
+
+    assert_equal true
+      (is_board_winning [[t2048; empty];
+                         [t8   ; t16  ]]);
+
+    assert_equal true
+      (is_board_winning (shift_board L [[t2048; empty];
+                                        [t8   ; t16  ]]));
+
+    assert_equal false
+      (is_board_winning [[empty]]);
+
+    assert_equal false
+      (is_board_winning [[empty; empty];
+                         [empty; empty]]);
   end
 
 (* Tests for insert_into_board *)
@@ -217,6 +253,9 @@ let suite = "2048 tests" >:::
 
    "test provenance"
     >:: test_provenance;
+
+   "test is_board_winning"
+    >:: test_is_board_winning;
   ]
 let _ =
   run_test_tt_main suite

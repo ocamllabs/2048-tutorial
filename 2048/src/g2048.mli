@@ -76,6 +76,9 @@ val insert_square : square -> board -> board option
 val is_board_full : board -> bool
 (** [is_board_full board] is [true] iff the [board] is full. *)
 
+val is_board_winning : board -> bool
+(** [is_board_winning board] is [true] iff the [board] is a winning board. *)
+
 val board_size : board -> int * int
 (** [board_size board] is the number of columns and rows in the board. *)
 
