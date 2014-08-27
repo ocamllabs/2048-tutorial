@@ -57,19 +57,19 @@ let string_of_square = function
 | Some (s, _) -> string_of_int s
 | None -> " "
 
-let is_new_square t =
+let is_new_tile t =
   match t with
   | None -> false
   | Some (_, New) -> true
   | Some (_, _) -> false
 
-let square_shift t =
+let tile_shift t =
   match t with
   | None -> None
   | Some (_, New) -> None
   | Some (_, Move { last_shift }) -> Some last_shift
 
-let square_previous t =
+let shifted_tile_value t =
   match t with
   | None -> None
   | Some (_, New) -> None
