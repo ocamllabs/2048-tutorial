@@ -45,4 +45,4 @@ let square_equal l r = square_value l = square_value r
 let row_equal = List.for_all2 square_equal
 let board_equal = List.for_all2 row_equal
 
-let board_provenance = board_map square_provenance
+let board_provenance = board_map square_provenances
