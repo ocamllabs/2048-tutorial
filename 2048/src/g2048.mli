@@ -47,9 +47,6 @@ val square_value : square -> int option
 val string_of_square : square -> string
 (** [string_of_square t] is [t] as a string. *)
 
-val is_new_tile : square -> bool
-(** [is_new_tile t] indicates whether [t] is freshly inserted. *)
-
 (** {1 Provenance} *)
 
 type provenance = { shift : int; value : int }
@@ -77,9 +74,6 @@ val insert_random_square : square -> board -> board option
 (** [insert_random_square square board] is [board] with [square] inserted
     in a randomly-chosen empty spot or [None] if there was no such spot. *)
 
-val is_board_full : board -> bool
-(** [is_board_full board] is [true] iff the [board] is full. *)
-
 val is_game_over : board -> bool
 (** [is_game_over board] is [true] iff there are no valid moves. *)
 
@@ -106,6 +100,3 @@ val shift_board : move -> board -> board
 val game_move : move -> board -> board
 (** [game_move move board] is the board resulting from shifting [board]
     in direction [move] and inserts a new square if the board is not full. *)
-
-val last_move_score : board -> int
-(** [last_move_score board] is the score achieved by the last move. *)

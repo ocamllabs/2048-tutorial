@@ -45,4 +45,9 @@ let square_equal l r = square_value l = square_value r
 let row_equal = List.for_all2 square_equal
 let board_equal = List.for_all2 row_equal
 
-let board_provenance = board_map square_provenance
+let board_provenance = board_map square_provenances
+
+
+let is_row_full r = not (List.exists ((=)empty) r)
+
+let is_board_full b = List.for_all is_row_full b

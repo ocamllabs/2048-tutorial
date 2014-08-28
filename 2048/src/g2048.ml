@@ -1,13 +1,3 @@
-(* There are two operations:
-
-   * shifting the board in some direction, which always succeeds (although
-     it's sometimes the identity)
-
-   * populating an empty square, which may fail *)
-
-(* Types.  We take squares rather than tiles as fundamental -- i.e. a
-   square contains a tile; a tile does not have coordinates. *)
-
 let () = Random.self_init () (* get a seed for random numbers *)
 
 (* Squares *)
@@ -58,12 +48,6 @@ let string_of_square = function
 | Some (s, _) -> string_of_int s
 | None -> " "
 
-let is_new_tile t =
-  match t with
-  | None -> false
-  | Some (_, []) -> true
-  | Some (_, _) -> false
-
 let is_square_2048 t =
   match t with
   | Some (2048, _) -> true
@@ -85,8 +69,6 @@ let empty_board =
 let is_none = function
   | None -> true
   | Some _ -> false
-
-let is_row_full r = not (List.exists is_none r)
 
 let find_positions p l =
   let positions, _ =
@@ -129,8 +111,6 @@ let rec is_moveable_row r =
     | None :: _ -> true
     | Some (x, _) :: Some (y, _) :: _ when x = y -> true
     | Some _ :: rest -> is_moveable_row rest
-
-let is_board_full b = List.for_all is_row_full b
 
 let is_board_winning = List.exists (List.exists is_square_2048)
 
@@ -195,18 +175,12 @@ let rec shift_left_helper : row -> row -> row =
 let shift_left l = shift_left_helper (List.map clear_provenance l) []
 let shift_right l = List.rev (shift_left (List.rev l))
 
-(* This is partial.  There's also an implementation in Jane Street's Core. *)
-let rec transpose = function
-  | [] -> []
-  | [] :: _ -> []
-  | x -> List.(map hd x :: transpose (map tl x))
-
 let rec shift_board : move -> board -> board = fun move board ->
   match move with
   | L -> List.map shift_left board
   | R -> List.map shift_right board
-  | U -> transpose (shift_board L (transpose board))
-  | D -> transpose (shift_board R (transpose board))
+  | U -> Utils.transpose (shift_board L (Utils.transpose board))
+  | D -> Utils.transpose (shift_board R (Utils.transpose board))
 
 let random_new_square () =
   if Random.int 10 = 0 then t4 else t2
@@ -217,22 +191,9 @@ let game_move move board =
   | None -> board'
   | Some board'' -> board''
 
-let square_score t =
-  match t with
-  | None -> 0
-  | Some (t, m1 :: m2 :: _) -> m1.value + m2.value
-  | Some (t, _) -> 0
-
-let sum = List.fold_left (+) 0
-
-let move_row_score row =
- sum (List.map square_score row)
-
-let last_move_score board =
- sum (List.map move_row_score board)
-
 let is_game_over b =
-   not (List.exists is_moveable_row b || List.exists is_moveable_row (transpose b))
+   not (List.exists is_moveable_row b
+     || List.exists is_moveable_row (Utils.transpose b))
 
 let from_Some = function
   | None -> assert false

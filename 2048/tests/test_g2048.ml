@@ -233,25 +233,6 @@ let test_provenance () =
       (board_provenance (shift_board D board));
   end
 
-(* Some tests for scoring *)
-let test_scoring () =
-  begin
-    assert_equal 0
-     (last_move_score
-        (shift_board L
-           [[empty; t2  ; t8   ];
-            [empty; t4  ; t16  ];
-            [t1024; t512; t1024]]));
-
-    assert_equal (2*2 + 2*16 + 2*512)
-     (last_move_score
-        (shift_board L
-           [[t2   ; t2   ; t8  ];
-            [empty; t16  ; t16 ];
-            [t512 ; empty; t512]]));
-  end
-
-
 (* Some tests for the game over condition *)
 let test_game_over () =
   begin
@@ -330,9 +311,6 @@ let suite = "2048 tests" >:::
 
    "test is_board_winning"
     >:: test_is_board_winning;
-
-   "test scoring"
-    >:: test_scoring;
 
    "test game over"
     >:: test_game_over;
