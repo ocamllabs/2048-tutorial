@@ -107,15 +107,16 @@ let board_img (w, h) t move board =
   let square_size = V2.(div (Size2.unit - pad_cumulated_size) board_size) in
   let origin = V2.(pad_size + 0.5 * square_size) in
   let dir = V2.(mul (move_direction move) (pad_size + square_size)) in
-  let add_square acc (x, y) square =
+  let add_square (squares, tiles) (x, y) square =
     let ipos = P2.v (float x) (float y) in
     let pos = V2.(origin + mul ipos (pad_size + square_size)) in
     let square_img = square_img square_size in
     let tile_img = tile_img t dir square_size square in
-    let img = square_img >> I.blend tile_img in
-    acc >> I.blend (img >> I.move pos)
+    squares >> I.blend (square_img >> I.move pos),
+    tiles >> I.blend (tile_img >> I.move pos)
   in
-  G2048.fold_board add_square (I.const board_background) board
+  let squares, tiles = G2048.fold_board add_square (I.void, I.void) board in
+  I.const board_background >> I.blend squares >> I.blend tiles
 
 (* Overlays *)
 
