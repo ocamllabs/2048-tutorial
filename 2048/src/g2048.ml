@@ -8,13 +8,15 @@
 (* Types.  We take squares rather than tiles as fundamental -- i.e. a
    square contains a tile; a tile does not have coordinates. *)
 
+let () = Random.self_init () (* get a seed for random numbers *)
+
 (* Squares *)
 
 type provenance = { shift : int; value : int }
 
 type tile = int * provenance list
 
-type square = tile option 
+type square = tile option
 
 let empty = None
 let t2 = Some (2, [])
@@ -47,7 +49,7 @@ let square_value t =
   | None -> None
   | Some (v, _) -> Some v
 
-let square_provenance t =
+let square_provenances t =
   match t with
   | None -> []
   | Some (_, p) -> p
@@ -65,7 +67,7 @@ let is_new_tile t =
 let is_square_2048 t =
   match t with
   | Some (2048, _) -> true
-  | _ -> false  
+  | _ -> false
 
 (* Board *)
 
