@@ -80,13 +80,11 @@ let create_board () =
 
 (* On to the insertion.  First, some functions for determining whether the
    board is full.  *)
+let is_none = function
+  | None -> true
+  | Some _ -> false
 
-let is_row_full r =
-  let is_some = function
-  | None -> false
-  | Some _ -> true
-  in
-  List.for_all is_some r
+let is_row_full r = not (List.exists is_none r)
 
 let rec is_moveable_row r =
   (* A row is moveable if it contains empty squares, or if adjacent
