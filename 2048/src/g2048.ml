@@ -72,21 +72,52 @@ let is_square_2048 t =
 type row = square list
 type board = row list
 
-let create_board () =
-  [ [t2; empty; empty; empty];
+let empty_board = 
+  [ [empty; empty; empty; empty];
     [empty; empty; empty; empty];
     [empty; empty; empty; empty];
-    [empty; empty; empty; t2]; ]
+    [empty; empty; empty; empty]; ]
 
 (* On to the insertion.  First, some functions for determining whether the
    board is full.  *)
+let is_none = function
+  | None -> true
+  | Some _ -> false
 
-let is_row_full r =
-  let is_some = function
-  | None -> false
-  | Some _ -> true
-  in
-  List.for_all is_some r
+let is_row_full r = not (List.exists is_none r)
+
+let find_positions p l =
+  let positions, _ =
+    List.fold_left (fun (positions, i) x ->
+                     ((if p x then i :: positions else positions),
+                      succ i)) ([], 0) l
+  in List.rev positions
+
+let find_coordinates p b =
+  List.concat
+    (List.mapi
+       (fun row r -> List.map (fun col -> (row, col))
+                              (find_positions p r))
+       b)
+
+let find_empties = find_coordinates is_none
+
+let rec replace_at n f l =
+  match n, l with
+    _, [] -> []
+  | 0, x :: xs -> f x :: xs
+  | n, x :: xs -> x :: replace_at (n - 1) f xs
+
+let replace_board_position (row, col) board square =
+  replace_at row (replace_at col (fun _ -> square)) board
+
+let insert_random_square t b =
+  match find_empties b with
+  | [] ->
+     None
+  | empties ->
+     Some (replace_board_position
+             (List.nth empties (Random.int (List.length empties))) b t)
 
 let rec is_moveable_row r =
   (* A row is moveable if it contains empty squares, or if adjacent
@@ -175,9 +206,12 @@ let rec shift_board : move -> board -> board = fun move board ->
   | U -> transpose (shift_board L (transpose board))
   | D -> transpose (shift_board R (transpose board))
 
+let random_new_square () =
+  if Random.bool () then t2 else t4
+
 let game_move move board =
   let board' = shift_board move board in
-  match insert_square t2 board' with
+  match insert_random_square (random_new_square ()) board' with
   | None -> board'
   | Some board'' -> board''
 
@@ -197,3 +231,12 @@ let last_move_score board =
 
 let is_game_over b =
    not (List.exists is_moveable_row b || List.exists is_moveable_row (transpose b))
+
+let from_Some = function
+  | None -> assert false
+  | Some x -> x
+
+let create_board () =
+  from_Some (insert_random_square (random_new_square ())
+               (from_Some (insert_random_square (random_new_square ())
+                             empty_board)))
