@@ -185,18 +185,12 @@ let rec shift_left_helper : row -> row -> row =
 let shift_left l = shift_left_helper (List.map clear_provenance l) []
 let shift_right l = List.rev (shift_left (List.rev l))
 
-(* This is partial.  There's also an implementation in Jane Street's Core. *)
-let rec transpose = function
-  | [] -> []
-  | [] :: _ -> []
-  | x -> List.(map hd x :: transpose (map tl x))
-
 let rec shift_board : move -> board -> board = fun move board ->
   match move with
   | L -> List.map shift_left board
   | R -> List.map shift_right board
-  | U -> transpose (shift_board L (transpose board))
-  | D -> transpose (shift_board R (transpose board))
+  | U -> Utils.transpose (shift_board L (Utils.transpose board))
+  | D -> Utils.transpose (shift_board R (Utils.transpose board))
 
 let random_new_square () =
   if Random.int 10 = 0 then t4 else t2
@@ -208,7 +202,8 @@ let game_move move board =
   | Some board'' -> board''
 
 let is_game_over b =
-   not (List.exists is_moveable_row b || List.exists is_moveable_row (transpose b))
+   not (List.exists is_moveable_row b
+     || List.exists is_moveable_row (Utils.transpose b))
 
 let from_Some = function
   | None -> assert false
