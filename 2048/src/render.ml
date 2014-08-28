@@ -61,7 +61,7 @@ let moving_tile_img t dpos square_size num =
   base_tile_img ~scale:1. square_size num >> I.move V2.((1. -. t) * dpos)
 
 let moving_tiles t dir square_size square num =
-  let move_time = Anim.ease_in_out t in
+  let move_time = Anim.ease_in_out (2. *. t) in
   let provenances = G2048.square_provenances square in
   let is_merge = List.length provenances > 1 in
   let add_tile acc p =
@@ -70,8 +70,8 @@ let moving_tiles t dir square_size square num =
   in
   let pop_tile =
     if not is_merge then I.void else
-    if t < 0.8 then I.void else
-    let t = Float.remap ~x0:0.8 ~x1:1.0 ~y0:0.0 ~y1:1.0 t in
+    if t < 0.5 then I.void else
+    let t = Float.remap ~x0:0.5 ~x1:1.0 ~y0:0.0 ~y1:1.0 t in
     pop_tile_img (Anim.ease_in_out t) square_size num
   in
   List.fold_left add_tile I.void provenances >>

@@ -21,7 +21,7 @@ let board : G2048.board signal =
   S.accum (E.map move user_move) (G2048.create_board ())
 
 let t : float signal = (* on each user_moves goes from 0. to 1. in 0.15s *)
-  let transition = E.map (fun _ _ -> Time.unit ~span:1.) user_move in
+  let transition = E.map (fun _ _ -> Time.unit ~span:0.3) user_move in
   S.switch (S.accum ~eq:(==) transition (S.const 1.))
 
 let last_user_move : G2048.move option signal =
