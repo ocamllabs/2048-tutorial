@@ -54,7 +54,7 @@ let base_tile_img ~scale tile_size num =
 
 let drop_tile_img t square_size num = base_tile_img ~scale:t square_size num
 let pop_tile_img t square_size num =
-  let scale = Float.remap ~x0:0. ~x1:1. ~y0:1. ~y1:1.3 (Anim.tri t) in
+  let scale = Float.remap ~x0:0. ~x1:1. ~y0:1. ~y1:1.35 (Anim.tri t) in
   base_tile_img ~scale square_size num
 
 let moving_tile_img t dpos square_size num =
