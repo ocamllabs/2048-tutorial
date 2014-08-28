@@ -217,20 +217,6 @@ let game_move move board =
   | None -> board'
   | Some board'' -> board''
 
-let square_score t =
-  match t with
-  | None -> 0
-  | Some (t, m1 :: m2 :: _) -> m1.value + m2.value
-  | Some (t, _) -> 0
-
-let sum = List.fold_left (+) 0
-
-let move_row_score row =
- sum (List.map square_score row)
-
-let last_move_score board =
- sum (List.map move_row_score board)
-
 let is_game_over b =
    not (List.exists is_moveable_row b || List.exists is_moveable_row (transpose b))
 
