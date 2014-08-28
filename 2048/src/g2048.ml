@@ -86,6 +86,39 @@ let is_none = function
 
 let is_row_full r = not (List.exists is_none r)
 
+let find_positions p l =
+  let positions, _ =
+    List.fold_left (fun (positions, i) x ->
+                     ((if p x then i :: positions else positions),
+                      succ i)) ([], 0) l
+  in List.rev positions
+
+let find_coordinates p b =
+  List.concat
+    (List.mapi
+       (fun row r -> List.map (fun col -> (row, col))
+                              (find_positions p r))
+       b)
+
+let find_empties = find_coordinates is_none
+
+let rec replace_at n f l =
+  match n, l with
+    _, [] -> []
+  | 0, x :: xs -> f x :: xs
+  | n, x :: xs -> x :: replace_at (n - 1) f xs
+
+let replace_board_position (row, col) board square =
+  replace_at row (replace_at col (fun _ -> square)) board
+
+let insert_random_square t b =
+  match find_empties b with
+  | [] ->
+     None
+  | empties ->
+     Some (replace_board_position
+             (List.nth empties (Random.int (List.length empties))) b t)
+
 let rec is_moveable_row r =
   (* A row is moveable if it contains empty squares, or if adjacent
      tiles have the same value *)

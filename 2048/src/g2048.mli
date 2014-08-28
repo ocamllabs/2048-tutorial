@@ -72,6 +72,10 @@ val insert_square : square -> board -> board option
 (** [insert_square square board] is [board] with [square] inserted in the
     first empty spot found in [board] or [None] if there was no such spot. *)
 
+val insert_random_square : square -> board -> board option
+(** [insert_random_square square board] is [board] with [square] inserted
+    in a randomly-chosen empty spot or [None] if there was no such spot. *)
+
 val is_board_full : board -> bool
 (** [is_board_full board] is [true] iff the [board] is full. *)
 

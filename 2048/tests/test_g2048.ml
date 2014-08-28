@@ -20,12 +20,23 @@ let test_add_to_full () =
   check_full_board_property "Squares cannot be added to a fully-populated board"
     (fun board -> insert_square t2 board = None)
 
+let test_add_random_to_full () =
+  check_full_board_property "Squares cannot be randomly added to a fully-populated board"
+    (fun board -> insert_random_square t2 board = None)
+
 let test_add () =
-  check_board_property "Squares cannot be added to a fully-populated board"
+  check_board_property "Squares can be added to a board with spaces"
     QCheck.(Prop.((fun board -> not (is_board_full board))
                   ==>
                   (fun board ->
                     insert_square t2 board <> None)))
+
+let test_add_random () =
+  check_board_property "Squares can be randomly added to a board with spaces"
+    QCheck.(Prop.((fun board -> not (is_board_full board))
+                  ==>
+                  (fun board ->
+                    insert_random_square t2 board <> None)))
 
 (* Some tests for is_board_full *)
 let test_is_board_full () =
@@ -91,13 +102,12 @@ let test_is_board_winning () =
                          [empty; empty]]);
   end
 
-(* Tests for insert_into_board *)
-let test_insert () =
+let check_insert insert =
   let insert_property square board =
     let ofSome = function Some x -> x | None -> assert false in
    (* rely on the fact that `sort_squares` places empties first *)
     assert (not (is_board_full board));
-    (sorted_squares (board_squares (ofSome (insert_square square board)))
+    (sorted_squares (board_squares (ofSome (insert square board)))
      =
      sorted_squares (square :: List.tl (sorted_squares (board_squares board))))
   in
@@ -106,7 +116,11 @@ let test_insert () =
                      ==>
                   (insert_property t8)))
 
+(* Tests for insert_square *)
+let test_insert () = check_insert insert_square
 
+(* Tests for insert_random_square *)
+let test_insert_random () = check_insert insert_random_square
 
 (* Some tests for movements *)
 let test_movements () =
@@ -290,14 +304,23 @@ let suite = "2048 tests" >:::
    "squares can be added to a board that is not fully-populated"
     >:: test_add;
 
+   "squares can be randomly added to a board that is not fully-populated"
+    >:: test_add_random;
+
    "squares cannot be added to a fully-populated board"
     >:: test_add_to_full;
+
+   "squares cannot be randomly added to a fully-populated board"
+    >:: test_add_random_to_full;
 
    "test is_board_full"
     >:: test_is_board_full;
 
-   "test insert_into_board"
+   "test insert_square"
     >:: test_insert;
+
+   "test insert_random_square"
+    >:: test_insert_random;
 
    "test movements"
     >:: test_movements;
