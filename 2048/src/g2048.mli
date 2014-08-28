@@ -47,9 +47,6 @@ val square_value : square -> int option
 val string_of_square : square -> string
 (** [string_of_square t] is [t] as a string. *)
 
-val is_new_tile : square -> bool
-(** [is_new_tile t] indicates whether [t] is freshly inserted. *)
-
 (** {1 Provenance} *)
 
 type provenance = { shift : int; value : int }

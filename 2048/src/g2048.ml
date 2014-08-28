@@ -58,12 +58,6 @@ let string_of_square = function
 | Some (s, _) -> string_of_int s
 | None -> " "
 
-let is_new_tile t =
-  match t with
-  | None -> false
-  | Some (_, []) -> true
-  | Some (_, _) -> false
-
 let is_square_2048 t =
   match t with
   | Some (2048, _) -> true
