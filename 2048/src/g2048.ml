@@ -1,13 +1,3 @@
-(* There are two operations:
-
-   * shifting the board in some direction, which always succeeds (although
-     it's sometimes the identity)
-
-   * populating an empty square, which may fail *)
-
-(* Types.  We take squares rather than tiles as fundamental -- i.e. a
-   square contains a tile; a tile does not have coordinates. *)
-
 let () = Random.self_init () (* get a seed for random numbers *)
 
 (* Squares *)
