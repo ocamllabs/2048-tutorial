@@ -62,16 +62,19 @@ let moving_tile_img t dpos square_size num =
 
 let moving_tiles t dir square_size square num =
   let move_time = Anim.ease_in_out t in
+  let provenances = G2048.square_provenances square in
+  let is_merge = List.length provenances > 1 in
   let add_tile acc p =
     let dpos = V2.(float (-p.G2048.shift) * dir) in
     acc >> I.blend (moving_tile_img move_time dpos square_size p.G2048.value)
   in
   let pop_tile =
+    if not is_merge then I.void else
     if t < 0.8 then I.void else
     let t = Float.remap ~x0:0.8 ~x1:1.0 ~y0:0.0 ~y1:1.0 t in
     pop_tile_img (Anim.ease_in_out t) square_size num
   in
-  List.fold_left add_tile I.void (G2048.square_provenances square) >>
+  List.fold_left add_tile I.void provenances >>
   I.blend pop_tile
 
 let tile_img t dir square_size square = match G2048.square_value square with
@@ -79,7 +82,7 @@ let tile_img t dir square_size square = match G2048.square_value square with
 | Some num ->
     match G2048.square_provenances square with
     | [] -> drop_tile_img (Anim.ease_in_out t) square_size num
-    | t :: [] -> base_tile_img ~scale:1. square_size num
+    | t :: [] when t.G2048.shift = 0 -> base_tile_img ~scale:1. square_size num
     | tiles ->
         if t = 1. then base_tile_img ~scale:1. square_size num else
         moving_tiles t dir square_size square num
