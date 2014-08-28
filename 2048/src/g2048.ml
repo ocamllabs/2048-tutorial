@@ -14,7 +14,7 @@ type provenance = { shift : int; value : int }
 
 type tile = int * provenance list
 
-type square = tile option 
+type square = tile option
 
 let empty = None
 let t2 = Some (2, [])
@@ -65,7 +65,7 @@ let is_new_tile t =
 let is_square_2048 t =
   match t with
   | Some (2048, _) -> true
-  | _ -> false  
+  | _ -> false
 
 (* Board *)
 
