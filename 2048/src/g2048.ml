@@ -72,11 +72,11 @@ let is_square_2048 t =
 type row = square list
 type board = row list
 
-let create_board () =
-  [ [t2; empty; empty; empty];
+let empty_board = 
+  [ [empty; empty; empty; empty];
     [empty; empty; empty; empty];
     [empty; empty; empty; empty];
-    [empty; empty; empty; t2]; ]
+    [empty; empty; empty; empty]; ]
 
 (* On to the insertion.  First, some functions for determining whether the
    board is full.  *)
@@ -206,9 +206,12 @@ let rec shift_board : move -> board -> board = fun move board ->
   | U -> transpose (shift_board L (transpose board))
   | D -> transpose (shift_board R (transpose board))
 
+let random_new_square () =
+  if Random.bool () then t2 else t4
+
 let game_move move board =
   let board' = shift_board move board in
-  match insert_square t2 board' with
+  match insert_random_square (random_new_square ()) board' with
   | None -> board'
   | Some board'' -> board''
 
@@ -228,3 +231,12 @@ let last_move_score board =
 
 let is_game_over b =
    not (List.exists is_moveable_row b || List.exists is_moveable_row (transpose b))
+
+let from_Some = function
+  | None -> assert false
+  | Some x -> x
+
+let create_board () =
+  from_Some (insert_random_square (random_new_square ())
+               (from_Some (insert_random_square (random_new_square ())
+                             empty_board)))
