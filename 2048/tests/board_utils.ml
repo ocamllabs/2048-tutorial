@@ -1,5 +1,7 @@
 open G2048
 
+let current_stage = 12
+
 (** Formatting for boards *)
 let repeat_string n s =
   let len = String.length s in
@@ -59,3 +61,10 @@ let board_provenance = board_map square_provenances
 let is_row_full r = not (List.exists ((=)empty) r)
 
 let is_board_full b = List.for_all is_row_full b
+
+let test ?stage msg test =
+  let open OUnit in
+  match stage with
+  | None -> msg >:: test
+  | Some s when s <= current_stage -> msg >:: test
+  | _ -> msg >:: fun () -> todo msg; assert false

@@ -277,43 +277,42 @@ let test_game_over () =
          [t8   ; t1024 ; t1024]]);
   end
 
-
 let suite = "2048 tests" >:::
-  ["a fixpoint is reached after width(board) shift_boards"
-    >:: test_shift_board_fixpoint;
+  [test ~stage:1 "a fixpoint is reached after width(board) shift_boards"
+    test_shift_board_fixpoint;
 
-   "squares can be added to a board that is not fully-populated"
-    >:: test_add;
+   test ~stage:2 "squares can be added to a board that is not fully-populated"
+    test_add;
 
-   "squares can be randomly added to a board that is not fully-populated"
-    >:: test_add_random;
+   test ~stage:3 "squares can be randomly added to a board that is not fully-populated"
+    test_add_random;
 
-   "squares cannot be added to a fully-populated board"
-    >:: test_add_to_full;
+   test ~stage:4 "squares cannot be added to a fully-populated board"
+    test_add_to_full;
 
-   "squares cannot be randomly added to a fully-populated board"
-    >:: test_add_random_to_full;
+   test ~stage:5 "squares cannot be randomly added to a fully-populated board"
+    test_add_random_to_full;
 
-   "test is_board_full"
-    >:: test_is_board_full;
+   test ~stage:6 "test is_board_full"
+    test_is_board_full;
 
-   "test insert_square"
-    >:: test_insert;
+   test ~stage:7 "test insert_square"
+    test_insert;
 
-   "test insert_random_square"
-    >:: test_insert_random;
+   test ~stage:8 "test insert_random_square"
+    test_insert_random;
 
-   "test movements"
-    >:: test_movements;
+   test ~stage:9 "test movements"
+    test_movements;
 
-   "test provenance"
-    >:: test_provenance;
+   test ~stage:10 "test provenance"
+    test_provenance;
 
-   "test is_board_winning"
-    >:: test_is_board_winning;
+   test ~stage:11 "test is_board_winning"
+    test_is_board_winning;
 
-   "test game over"
-    >:: test_game_over;
+   test ~stage:12 "test game over"
+    test_game_over;
   ]
 let _ =
   run_test_tt_main suite
