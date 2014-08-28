@@ -80,8 +80,6 @@ let is_none = function
   | None -> true
   | Some _ -> false
 
-let is_row_full r = not (List.exists is_none r)
-
 let find_positions p l =
   let positions, _ =
     List.fold_left (fun (positions, i) x ->
@@ -123,8 +121,6 @@ let rec is_moveable_row r =
     | None :: _ -> true
     | Some (x, _) :: Some (y, _) :: _ when x = y -> true
     | Some _ :: rest -> is_moveable_row rest
-
-let is_board_full b = List.for_all is_row_full b
 
 let is_board_winning = List.exists (List.exists is_square_2048)
 
