@@ -207,7 +207,7 @@ let rec shift_board : move -> board -> board = fun move board ->
   | D -> transpose (shift_board R (transpose board))
 
 let random_new_square () =
-  if Random.bool () then t2 else t4
+  if Random.int 10 = 0 then t4 else t2
 
 let game_move move board =
   let board' = shift_board move board in
