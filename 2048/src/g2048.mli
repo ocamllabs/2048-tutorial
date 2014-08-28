@@ -51,6 +51,7 @@ val is_new_tile : square -> bool
 (** [is_new_tile t] indicates whether [t] is freshly inserted. *)
 
 (** {1 Provenance} *)
+
 type provenance = { shift : int; value : int }
 (** The provenance of a tile *)
 

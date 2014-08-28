@@ -8,6 +8,8 @@
 (* Types.  We take squares rather than tiles as fundamental -- i.e. a
    square contains a tile; a tile does not have coordinates. *)
 
+let () = Random.self_init () (* get a seed for random numbers *)
+
 (* Squares *)
 
 type provenance = { shift : int; value : int }
