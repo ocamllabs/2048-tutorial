@@ -117,8 +117,8 @@ let check_insert insert =
 (* Tests for insert_square *)
 let test_insert () = check_insert insert_square
 
-(* Some tests for movements *)
-let test_movements () =
+(* Some tests for shifts *)
+let test_shifts () =
   let board = [[t2   ; empty; t2   ; t4   ];
                [t2   ; empty; empty; t4   ];
                [empty; empty; empty; empty];
@@ -273,32 +273,39 @@ let test_game_over () =
   end
 
 let suite = "2048 tests" >:::
-  [test ~stage:1 "test is_board_winning"
+  [
+   (* 1. tests for is_board_winning *)
+   test ~stage:1 "test is_board_winning"
     test_is_board_winning;
 
-   test ~stage:100 "a fixpoint is reached after width(board) shift_boards"
+   (* 2. tests for shifts *)
+   test ~stage:2 "test shifts"
+    test_shifts;
+
+   test ~stage:2 "a fixpoint is reached after width(board) shift_boards"
     test_shift_board_fixpoint;
 
-   test ~stage:100 "squares can be added to a board that is not fully-populated"
+   (* 3. tests for insertions *)
+   test ~stage:3 "squares can be added to a board that is not fully-populated"
     test_add;
 
-   test ~stage:100 "squares cannot be added to a fully-populated board"
+   test ~stage:3 "squares cannot be added to a fully-populated board"
     test_add_to_full;
 
-   test ~stage:100 "test is_board_full"
-    test_is_board_full;
-
-   test ~stage:100 "test insert_square"
+   test ~stage:3 "test insert_square"
     test_insert;
 
-   test ~stage:100 "test movements"
-    test_movements;
+   (* 4. tests for is_game_over *)
+   test ~stage:4 "test game over"
+    test_game_over;
 
-   test ~stage:100 "test provenance"
+   (* 5. tests for provenance *) 
+   test ~stage:5 "test provenance"
     test_provenance;
 
-   test ~stage:100 "test game over"
-    test_game_over;
+   (* Always-on tests *)
+   test "test is_board_full"
+    test_is_board_full;
   ]
 let _ =
   run_test_tt_main suite
