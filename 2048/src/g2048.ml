@@ -1,205 +1,113 @@
 let () = Random.self_init () (* get a seed for random numbers *)
 
-(* Squares *)
+(** Squares and tiles *)
 
-type provenance = { shift : int; value : int }
+(* A tile is represented as its value. *)
+type tile = int
 
-type tile = int * provenance list
-
+(* An unoccupied square is represented as None.
+   A square occupied by a tile t is represented as Some t. *)
 type square = tile option
 
+(* The provenance of a square is a list of the previous positions and
+   values of the current occupants.
+
+   A freshly-populated square has provenance
+     [].
+
+   A square unchanged by the last move has provenance
+     [{shift = 0; value = v}].
+
+   A square occupied by a shifted tile has provenance
+     [{shift = s; value = v}].
+
+   A square occupied by combining two tiles has provenance
+     [{shift = s1; value = v}; {shift = s2; value = v}].
+*)
+type provenance = { shift : int; value : int }
+
 let empty = None
-let t2 = Some (2, [])
-and t4 = Some (4, [])
-and t8 = Some (8, [])
-and t16 = Some (16, [])
-and t32 = Some (32, [])
-and t64 = Some (64, [])
-and t128 = Some (128, [])
-and t256 = Some (256, [])
-and t512 = Some (512, [])
-and t1024 = Some (1024, [])
-and t2048 = Some (2048, [])
+let t2 = Some 2
+let t4 = Some 4
+let t8 = Some 8
+let t16 = Some 16
+let t32 = Some 32
+let t64 = Some 64
+let t128 = Some 128
+let t256 = Some 256
+let t512 = Some 512
+let t1024 = Some 1024
+let t2048 = Some 2048
 
-(* Replace the provenance of a square with the no-move provenance. *)
-let clear_provenance t =
-  match t with
-  | None -> None
-  | Some (t, _) -> Some (t, [{ shift = 0; value = t}] )
+(* The value of the occupant of a square, if the square is occupied. *)
+let square_value (sq : square) = sq
 
-(* Update the provenance of a square after a shift. *)
-let shift_square t =
-  match t with
-  | None -> None
-  | Some (t, []) -> Some(t, [{ shift = 1; value = t }])
-  | Some (t, m :: _) -> Some (t, [{ m with shift = m.shift + 1 }])
-
-let square_value t =
-  match t with
-  | None -> None
-  | Some (v, _) -> Some v
-
-let square_provenances t =
-  match t with
-  | None -> []
-  | Some (_, p) -> p
+let square_provenances (sq : square) = [] (* TODO *)
 
 let string_of_square = function
-| Some (s, _) -> string_of_int s
+| Some s -> string_of_int s
 | None -> " "
 
-let is_square_2048 t =
-  match t with
-  | Some (2048, _) -> true
-  | _ -> false
+(* Whether a square is occupied by a tile with the value 2048. *)
+let is_square_2048 (sq : square) = false (* TODO *)
 
-(* Board *)
+(* Select a tile to insert.  Returns t4 10% of the time and t2 90% of the time. *)
+let new_square () : square =
+  match Random.int 10 with
+  | 0 -> t4
+  | _ -> t2
 
+(** Boards *)
+
+(* A board is a list of lists of squares *)
 type row = square list
 type board = row list
 
-let empty_board = 
-  [ [empty; empty; empty; empty];
+let create_board () =
+  [ [empty; t2   ; empty; empty];
     [empty; empty; empty; empty];
     [empty; empty; empty; empty];
-    [empty; empty; empty; empty]; ]
+    [empty; empty; empty; t2   ]; ]
 
-(* On to the insertion.  First, some functions for determining whether the
-   board is full.  *)
-let is_none = function
-  | None -> true
-  | Some _ -> false
+(* A row is complete if 
+   * it contains no empty squares and 
+   * a shift leaves it unchanged *)
+let rec is_complete_row (r : row) : bool =
+  true (* TODO *)
 
-let find_positions p l =
-  let positions, _ =
-    List.fold_left (fun (positions, i) x ->
-                     ((if p x then i :: positions else positions),
-                      succ i)) ([], 0) l
-  in List.rev positions
+(* A board is a winning board if it contains the tile 2048. *)
+let is_board_winning (b : board) = false (* TODO *)
 
-let find_coordinates p b =
-  List.concat
-    (List.mapi
-       (fun row r -> List.map (fun col -> (row, col))
-                              (find_positions p r))
-       b)
+(* Insert a square into an unoccupied spot on a board. *)
+let insert_square (sq : square) (b : board) : board option =
+  None (* TODO *)
 
-let find_empties = find_coordinates is_none
+let board_size = Utils.listlist_dims
+let fold_board = Utils.fold_listlisti
 
-let rec replace_at n f l =
-  match n, l with
-    _, [] -> []
-  | 0, x :: xs -> f x :: xs
-  | n, x :: xs -> x :: replace_at (n - 1) f xs
-
-let replace_board_position (row, col) board square =
-  replace_at row (replace_at col (fun _ -> square)) board
-
-let insert_random_square t b =
-  match find_empties b with
-  | [] ->
-     None
-  | empties ->
-     Some (replace_board_position
-             (List.nth empties (Random.int (List.length empties))) b t)
-
-let rec is_moveable_row r =
-  (* A row is moveable if it contains empty squares, or if adjacent
-     tiles have the same value *)
-  match r with
-      [] -> false
-    | None :: _ -> true
-    | Some (x, _) :: Some (y, _) :: _ when x = y -> true
-    | Some _ :: rest -> is_moveable_row rest
-
-let is_board_winning = List.exists (List.exists is_square_2048)
-
-(* optionally replace a single item in a list *)
-let rec replace_one p l = match l with
-| [] -> None
-| x :: xs ->
-    begin match p x with
-    | Some y -> Some (y :: xs)
-    | None ->
-        begin match replace_one p xs with
-        | None -> None
-        | Some ys -> Some (x :: ys)
-        end
-    end
-
-(* Populate the first empty spot in a row. *)
-let insert_into_row (sq : square) (l : row) : row option =
-  replace_one (function None -> Some sq | Some _ -> None) l
-
-(* Populate the first empty spot on a board. *)
-let insert_square sq : board -> board option =
-  replace_one (insert_into_row sq)
-
-let board_size board = match board with
-| [] -> (0, 0)
-| r :: _  -> List.length r, List.length board
-
-let fold_board f acc board =
-  let col y (x, acc) square = x + 1, (f acc (x, y) square) in
-  let row (y, acc) row = y + 1, snd (List.fold_left (col y) (0, acc) row) in
-  snd (List.fold_left row (0, acc) (List.rev board))
-
-(* Moves *)
+(** Moves *)
 
 type move = L | R | U | D
 
-(* Let's start with the shifts. *)
+(* Shift a row to the left according to the rules of the game, and
+   append `empties`.  Tiles slide over empty squares, and adjacent
+   tiles are coalesced if they have the same value. *)
+let rec shift_left_helper (r : row) (empties : row) : row =
+  r (* TODO.  Hint: use pattern matching on r and recursion. *)
 
-(* [shift_left] is the central function, and defines the change in a single
-   row under a left shift.  The other three shifts can be defined in terms of
-   [shift_left] (see [shift]); [shift_left_helper] is an auxiliary function
-   that accumulates empty squares. *)
-let rec shift_left_helper : row -> row -> row =
-  (* invariant: length list + length accum = length rhs.
-     Alternatively: everything on the left must appear on the right,
-     including accum.
-  *)
-  fun list empties -> match list with
-  | [] ->
-     empties
-  | None :: rest ->
-     shift_left_helper (List.map shift_square rest) (None :: empties)
-  | Some (x, xprov) :: Some (y, {shift; value} :: _) :: rest when x = y ->
-     Some (x + y, xprov @ [{shift = shift + 1; value}]) :: shift_left_helper (List.map shift_square rest) (None :: empties)
-  | Some x :: None :: rest ->
-     shift_left_helper (Some x :: List.map shift_square rest) (None :: empties)
-  | Some (x, prov) :: r ->
-     Some (x, prov) :: shift_left_helper r empties
+let shift_left (r : row) = shift_left_helper r []
 
-(* [shift_left] starts with an empty accumulator *)
-let shift_left l = shift_left_helper (List.map clear_provenance l) []
-let shift_right l = List.rev (shift_left (List.rev l))
+(* Shift a row in the specified direction according to the rules of the game. *)
+let rec shift_board (mv : move) (b : board) : board =
+  (* TODO.  Hint: use pattern matching on mv and shift_left, List.rev
+     and Utils.transpose. *)
+  b
 
-let rec shift_board : move -> board -> board = fun move board ->
-  match move with
-  | L -> List.map shift_left board
-  | R -> List.map shift_right board
-  | U -> Utils.transpose (shift_board L (Utils.transpose board))
-  | D -> Utils.transpose (shift_board R (Utils.transpose board))
+(** High-level interface. *)
+let game_move (mv : move) (b : board) : board =
+  let b' = shift_board mv b in
+  match insert_square (new_square ()) b' with
+  | None -> b'
+  | Some b'' -> b''
 
-let random_new_square () =
-  if Random.int 10 = 0 then t4 else t2
-
-let game_move move board =
-  let board' = shift_board move board in
-  match insert_random_square (random_new_square ()) board' with
-  | None -> board'
-  | Some board'' -> board''
-
-let is_game_over b =
-   not (List.exists is_moveable_row b
-     || List.exists is_moveable_row (Utils.transpose b))
-
-let from_Some = function
-  | None -> assert false
-  | Some x -> x
-
-let create_board () =
-  from_Some (insert_random_square (random_new_square ())
-               (from_Some (insert_random_square (random_new_square ())
-                             empty_board)))
+let is_game_over (b : board) = false (* TODO *)
