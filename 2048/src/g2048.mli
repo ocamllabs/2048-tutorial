@@ -67,12 +67,8 @@ val create_board : unit -> board
 (** [create_board ()] is a new board. *)
 
 val insert_square : square -> board -> board option
-(** [insert_square square board] is [board] with [square] inserted in the
-    first empty spot found in [board] or [None] if there was no such spot. *)
-
-val insert_random_square : square -> board -> board option
-(** [insert_random_square square board] is [board] with [square] inserted
-    in a randomly-chosen empty spot or [None] if there was no such spot. *)
+(** [insert_square square board] is [board] with [square] inserted in an
+    empty spot or [None] if there was no such spot. *)
 
 val is_game_over : board -> bool
 (** [is_game_over board] is [true] iff there are no valid moves. *)
