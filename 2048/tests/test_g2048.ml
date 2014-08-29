@@ -5,10 +5,14 @@ open Board_utils
 let mk_board_test = QCheck.mk_test ~n:1000 ~pp:string_of_board
 
 let check_board_property name ?size (prop : board -> bool) =
-  assert QCheck.(run (mk_board_test ~name (arbitrary_board ?size) prop))
+  assert_equal true
+    ~msg:(Printf.sprintf "QCheck test %s" name)
+    QCheck.(run (mk_board_test ~name (arbitrary_board ?size) prop))
 
 let check_full_board_property name ?size (prop : board -> bool) =
-  assert QCheck.(run (mk_board_test ~name (arbitrary_full_board ?size) prop))
+  assert_equal true
+    ~msg:(Printf.sprintf "QCheck test %s" name)
+    QCheck.(run (mk_board_test ~name (arbitrary_full_board ?size) prop))
 
 let test_shift_board_fixpoint () =
   check_board_property "Shifting reaches a fixpoint after width(board) shifts"
@@ -105,9 +109,12 @@ let check_insert insert =
     let ofSome = function Some x -> x | None -> assert false in
    (* rely on the fact that `sort_squares` places empties first *)
     assert (not (is_board_full board));
-    (sorted_squares (board_squares (ofSome (insert square board)))
-     =
-     sorted_squares (square :: List.tl (sorted_squares (board_squares board))))
+    match insert square board with
+    | Some board' -> 
+       (sorted_squares (board_squares board')
+        =
+        sorted_squares (square :: List.tl (sorted_squares (board_squares board))))
+    | None -> failwith "Insertion failed"
   in
   check_board_property "insert_into_board adds a square to the board"
     QCheck.(Prop.((fun board -> not (is_board_full board))
