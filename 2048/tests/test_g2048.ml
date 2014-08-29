@@ -5,10 +5,10 @@ open Board_utils
 let mk_board_test = QCheck.mk_test ~n:1000 ~pp:string_of_board
 
 let check_board_property name ?size (prop : board -> bool) =
-  assert QCheck.(run (mk_board_test (arbitrary_board ?size) prop))
+  assert QCheck.(run (mk_board_test ~name (arbitrary_board ?size) prop))
 
 let check_full_board_property name ?size (prop : board -> bool) =
-  assert QCheck.(run (mk_board_test (arbitrary_full_board ?size) prop))
+  assert QCheck.(run (mk_board_test ~name (arbitrary_full_board ?size) prop))
 
 let test_shift_board_fixpoint () =
   check_board_property "Shifting reaches a fixpoint after width(board) shifts"
