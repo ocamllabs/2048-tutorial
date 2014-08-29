@@ -7,10 +7,10 @@ type stages =
 
 let tests_enabled = [
   Winning_board;
-  Shifting;
-  Inserting;
-  Game_over;
-  Provenance;
+  (* Shifting; *)
+  (* Inserting; *)
+  (* Game_over; *)
+  (* Provenance; *)
 ]
 
 let test ?stage msg test =
