@@ -2,13 +2,6 @@ let () = Random.self_init () (* get a seed for random numbers *)
 
 (** Squares and tiles *)
 
-(* A tile is represented as its value. *)
-type tile = int
-
-(* An unoccupied square is represented as None.
-   A square occupied by a tile t is represented as Some t. *)
-type square = tile option
-
 (* The provenance of a square is a list of the previous positions and
    values of the current occupants.
 
@@ -26,32 +19,59 @@ type square = tile option
 *)
 type provenance = { shift : int; value : int }
 
+(* A tile is represented as its value. *)
+type tile = int * provenance list
+
+(* An unoccupied square is represented as None.
+   A square occupied by a tile t is represented as Some t. *)
+type square = tile option
+
 let empty = None
-let t2 = Some 2
-let t4 = Some 4
-let t8 = Some 8
-let t16 = Some 16
-let t32 = Some 32
-let t64 = Some 64
-let t128 = Some 128
-let t256 = Some 256
-let t512 = Some 512
-let t1024 = Some 1024
-let t2048 = Some 2048
+let t2 = Some (2, [])
+and t4 = Some (4, [])
+and t8 = Some (8, [])
+and t16 = Some (16, [])
+and t32 = Some (32, [])
+and t64 = Some (64, [])
+and t128 = Some (128, [])
+and t256 = Some (256, [])
+and t512 = Some (512, [])
+and t1024 = Some (1024, [])
+and t2048 = Some (2048, [])
 
 (* The value of the occupant of a square, if the square is occupied. *)
-let square_value (sq : square) = sq
+let square_value (sq : square) = 
+  match sq with
+  | None -> None
+  | Some (v, _) -> Some v
 
-let square_provenances (sq : square) = [] (* TODO *)
+let square_provenances (sq : square) =
+  match sq with
+  | None -> []
+  | Some (_, p) -> p
 
-let string_of_square = function
-| Some s -> string_of_int s
-| None -> " "
+let string_of_square (sq : square) =
+  match sq with
+  | Some (s, _) -> string_of_int s
+  | None -> " "
+
+(* Replace the provenance of a square with the no-move provenance. *)
+let clear_provenance (sq : square) =
+  match sq with
+  | None -> None
+  | Some (t, _) -> Some (t, [{ shift = 0; value = t}] )
+
+(* Update the provenance of a square after a shift. *)
+let shift_square t =
+  match t with
+  | None -> None
+  | Some (t, []) -> Some(t, [{ shift = 1; value = t }])
+  | Some (t, m :: _) -> Some (t, [{ m with shift = m.shift + 1 }])
 
 (* Whether a square is occupied by a tile with the value 2048. *)
 let is_square_2048 (sq : square) =
   match sq with
-  | Some 2048 -> true
+  | Some (2048, _) -> true
   | _ -> false
 
 (* Select a tile to insert.  Returns t4 10% of the time and t2 90% of the time. *)
@@ -136,15 +156,16 @@ let rec shift_left_helper (r : row) (empties : row) : row =
   | [] ->
      empties
   | None :: rest ->
-     shift_left_helper rest (None :: empties)
-  | Some x :: Some y :: rest when x = y ->
-     Some (x + y) :: shift_left_helper rest (None :: empties)
+     shift_left_helper (List.map shift_square rest) (None :: empties)
+  | Some (x, xprov) :: Some (y, {shift; value} :: _) :: rest when x = y ->
+     Some (x + y, xprov @ [{shift = shift + 1; value}])
+     :: shift_left_helper (List.map shift_square rest) (None :: empties)
   | Some x :: None :: rest ->
-     shift_left_helper (Some x :: rest) (None :: empties)
-  | Some x :: r ->
-     Some x :: shift_left_helper r empties
+     shift_left_helper (Some x :: List.map shift_square rest) (None :: empties)
+  | Some (x, prov) :: r ->
+     Some (x, prov) :: shift_left_helper r empties
 
-let shift_left (r : row) = shift_left_helper r []
+let shift_left (r : row) = shift_left_helper (List.map clear_provenance r) []
 let shift_right l = List.rev (shift_left (List.rev l))
 
 (* Shift a row in the specified direction according to the rules of the game. *)

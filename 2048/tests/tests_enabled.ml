@@ -10,7 +10,7 @@ let tests_enabled = [
   Shifting;
   Inserting;
   Game_over;
-  (* Provenance; *)
+  Provenance;
 ]
 
 let test ?stage msg test =
