@@ -49,7 +49,10 @@ let string_of_square = function
 | None -> " "
 
 (* Whether a square is occupied by a tile with the value 2048. *)
-let is_square_2048 (sq : square) = false (* TODO *)
+let is_square_2048 (sq : square) =
+  match sq with
+  | Some 2048 -> true
+  | _ -> false
 
 (* Select a tile to insert.  Returns t4 10% of the time and t2 90% of the time. *)
 let new_square () : square =
@@ -76,7 +79,8 @@ let rec is_complete_row (r : row) : bool =
   true (* TODO *)
 
 (* A board is a winning board if it contains the tile 2048. *)
-let is_board_winning (b : board) = false (* TODO *)
+let is_board_winning (b : board) =
+  List.exists (List.exists is_square_2048) b
 
 (* Insert a square into an unoccupied spot on a board. *)
 let insert_square (sq : square) (b : board) : board option =
