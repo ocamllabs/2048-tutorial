@@ -82,9 +82,18 @@ let rec is_complete_row (r : row) : bool =
 let is_board_winning (b : board) =
   List.exists (List.exists is_square_2048) b
 
+(* Populate the first empty spot in a row. *)
+let insert_into_row (sq : square) (l : row) : row option =
+  let replacer s =
+    match s with
+    | None -> Some sq
+    | Some _ -> None
+  in
+  Utils.replace_one replacer l
+
 (* Insert a square into an unoccupied spot on a board. *)
 let insert_square (sq : square) (b : board) : board option =
-  None (* TODO *)
+  Utils.replace_one (insert_into_row sq) b
 
 let board_size = Utils.listlist_dims
 let fold_board = Utils.fold_listlisti
