@@ -76,9 +76,3 @@ let is_row_full r = not (List.exists ((=)empty) r)
 
 let is_board_full b = List.for_all is_row_full b
 
-let test ?stage msg test =
-  let open OUnit in
-  match stage with
-  | None -> msg >:: test
-  | Some s when s <= current_stage -> msg >:: test
-  | _ -> msg >:: fun () -> todo msg; assert false

@@ -399,58 +399,59 @@ let test_game_over () =
   end
 
 let suite = "2048 tests" >:::
+  let open Tests_enabled in 
   [
    (* 1. tests for is_board_winning *)
-   test ~stage:1 "test is_board_winning"
+   test ~stage:Winning_board "test is_board_winning"
     test_is_board_winning;
 
    (* 2. tests for shifts *)
-   test ~stage:2 "test shifting empty rows"
+   test ~stage:Shifting "test shifting empty rows"
     test_shift_empty;
 
-   test ~stage:2 "test shifting moves empty squares to the right"
+   test ~stage:Shifting "test shifting moves empty squares to the right"
     test_shift_empty_squares;
 
-   test ~stage:2 "test shifting can coalesce equal squares"
+   test ~stage:Shifting "test shifting can coalesce equal squares"
     test_shift_coalesce;
 
-   test ~stage:2 "test shifts"
+   test ~stage:Shifting "test shifts"
     test_shifts;
 
-   test ~stage:2 "a fixpoint is reached after width(board) shift_boards"
+   test ~stage:Shifting "a fixpoint is reached after width(board) shift_boards"
     test_shift_board_fixpoint;
 
    (* 3. tests for insertions *)
-   test ~stage:3 "insertion into completely empty rows"
+   test ~stage:Inserting "insertion into completely empty rows"
     test_insert_row_completely_empty;
 
-   test ~stage:3 "insertion into partially empty rows"
+   test ~stage:Inserting "insertion into partially empty rows"
     test_insert_row_partially_empty;
 
-   test ~stage:3 "insertion into full rows"
+   test ~stage:Inserting "insertion into full rows"
     test_insert_row_full;
 
-   test ~stage:3 "insertion into last empty square"
+   test ~stage:Inserting "insertion into last empty square"
     test_insert_last_square;
 
-   test ~stage:3 "squares can be added to a board that is not fully-populated"
+   test ~stage:Inserting "squares can be added to a board that is not fully-populated"
     test_add;
 
-   test ~stage:3 "squares cannot be added to a fully-populated board"
+   test ~stage:Inserting "squares cannot be added to a fully-populated board"
     test_add_to_full;
 
-   test ~stage:3 "test insert_square"
+   test ~stage:Inserting "test insert_square"
     test_insert;
 
    (* 4. tests for is_game_over *)
-   test ~stage:4 "test game over"
+   test ~stage:Game_over "test game over"
     test_game_over;
 
    (* 5. tests for provenance *) 
-   test ~stage:5 "test row provenance"
+   test ~stage:Provenance "test row provenance"
     test_row_provenance;
 
-   test ~stage:5 "test provenance"
+   test ~stage:Provenance "test provenance"
     test_provenance;
 
    (* Always-on tests *)
