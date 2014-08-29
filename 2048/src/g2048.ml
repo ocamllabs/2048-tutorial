@@ -66,26 +66,20 @@ let new_square () : square =
 type row = square list
 type board = row list
 
+let is_none s =
+  match s with
+  | Some _ -> false
+  | None -> true
+
 let create_board () =
   [ [empty; t2   ; empty; empty];
     [empty; empty; empty; empty];
     [empty; empty; empty; empty];
     [empty; empty; empty; t2   ]; ]
 
-(* A row is complete if 
-   * it contains no empty squares and 
-   * a shift leaves it unchanged *)
-let rec is_complete_row (r : row) : bool =
-  true (* TODO *)
-
 (* A board is a winning board if it contains the tile 2048. *)
 let is_board_winning (b : board) =
   List.exists (List.exists is_square_2048) b
-
-let is_none s =
-  match s with
-  | Some _ -> false
-  | None -> true
 
 let find_positions p l =
   let f (positions, i) x =
@@ -168,4 +162,14 @@ let game_move (mv : move) (b : board) : board =
   | None -> b'
   | Some b'' -> b''
 
-let is_game_over (b : board) = false (* TODO *)
+(* A row is complete if 
+   * it contains no empty squares and 
+   * a shift leaves it unchanged *)
+let rec is_complete_row (r : row) : bool =
+  let row_value r = List.map square_value r in
+    not (List.exists is_none r)
+ && row_value (shift_left r) = row_value r
+
+let is_game_over (b : board) =
+    List.for_all is_complete_row b
+ && List.for_all is_complete_row (Utils.transpose b)

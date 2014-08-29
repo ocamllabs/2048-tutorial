@@ -9,7 +9,7 @@ let tests_enabled = [
   Winning_board;
   Shifting;
   Inserting;
-  (* Game_over; *)
+  Game_over;
   (* Provenance; *)
 ]
 
