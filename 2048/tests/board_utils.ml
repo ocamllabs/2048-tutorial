@@ -12,9 +12,13 @@ let string_of_board b =
   let format_row row =
     Printf.sprintf "|%s|" (String.concat "" (List.map pad_square row))
   in
-  let hline = repeat_string (List.length b) "------" in
+  let hline =
+    match b with
+    | b :: _ -> repeat_string (List.length b) "------"
+    | _      -> repeat_string (List.length b) "------"
+  in
   let body = String.concat "\n" (List.map format_row b) in
-  hline ^ "\n" ^ body ^ "\n" ^ hline
+  "\n " ^ hline ^ "\n" ^ body ^ "\n " ^ hline
 
 (** Generating random boards *)
 let non_empty_squares = [t2; t4; t8; t16; t32; t64; t128; t256; t512; t1024; t2048]
@@ -42,8 +46,12 @@ let board_squares = List.concat
 let board_map f b = List.map (List.map f) b
 
 let square_equal l r = square_value l = square_value r
-let row_equal = List.for_all2 square_equal
-let board_equal = List.for_all2 row_equal
+let row_equal r1 r2 =
+    List.length r1 = List.length r2
+ && List.for_all2 square_equal r1 r2
+let board_equal b1 b2 =
+    List.length b1 = List.length b2
+ && List.for_all2 row_equal b1 b2
 
 let board_provenance = board_map square_provenances
 
