@@ -289,22 +289,10 @@ let test_provenance () =
                [empty; empty; empty; empty];
                [empty; empty; t8   ; t8   ]]
   in
-  let print_provenance_board b =
-    "\n"^
-    String.concat "\n"
-      (List.map (fun row ->
-        String.concat " "
-          (List.map (fun provs ->
-            match provs with
-                [] -> "-"
-              | provs -> String.concat "+"
-                (List.map (fun {value; shift} -> Printf.sprintf "<-{%d}-%d" shift value) provs)) row)) b)
-  in
-
 
   begin
     assert_equal
-      ~printer:print_provenance_board
+      ~printer:string_of_provenances
       [[[{value=2; shift=0}; {value=2; shift=2}]; [{value=4; shift=2}]; []; []];
        [[{value=2; shift=0}];                     [{value=4; shift=2}]; []; []];
        [[];                                       [];                   []; []];
@@ -312,7 +300,7 @@ let test_provenance () =
       (board_provenance (shift_board L board));
 
     assert_equal
-      ~printer:print_provenance_board
+      ~printer:string_of_provenances
       [[[]; []; [{value=2; shift=0}; {value=2; shift=2}]; [{value=4; shift=0}]                    ];
        [[]; []; [{value=2; shift=2}];                     [{value=4; shift=0}]                    ];
        [[]; []; [];                                       []                                      ];
@@ -320,7 +308,7 @@ let test_provenance () =
       (board_provenance (shift_board R board));
 
     assert_equal
-      ~printer:print_provenance_board
+      ~printer:string_of_provenances
       [[[{value=2; shift=0}; {value=2; shift=1}]; []; [{value=2; shift=0}]; [{value=4; shift=0}; {value=4; shift=1}]];
        [[];                                       []; [{value=8; shift=2}]; [{value=8; shift=2}]                    ];
        [[];                                       []; [];                   []                                      ];
@@ -328,7 +316,7 @@ let test_provenance () =
       (board_provenance (shift_board U board));
 
     assert_equal
-      ~printer:print_provenance_board
+      ~printer:string_of_provenances
       [[[];                                       []; [];                   []                                      ];
        [[];                                       []; [];                   []                                      ];
        [[];                                       []; [{value=2; shift=2}]; [{value=4; shift=1}; {value=4; shift=2}]];

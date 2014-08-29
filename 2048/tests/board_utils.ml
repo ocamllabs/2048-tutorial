@@ -1,6 +1,6 @@
 open G2048
 
-let current_stage = 4
+let current_stage = 5
 
 (** Formatting for boards *)
 let repeat_string n s =
@@ -9,8 +9,10 @@ let repeat_string n s =
   for i = 1 to n do Buffer.add_string buf s done;
   Buffer.contents buf
 
+let pad n s = Printf.sprintf "%*s " n s
+
 let string_of_board b =
-  let pad_square t = Printf.sprintf "%5s " (string_of_square t) in
+  let pad_square t = pad 5 (string_of_square t) in
   let format_row row =
     Printf.sprintf "|%s|" (String.concat "" (List.map pad_square row))
   in
@@ -21,6 +23,16 @@ let string_of_board b =
   in
   let body = String.concat "\n" (List.map format_row b) in
   "\n " ^ hline ^ "\n" ^ body ^ "\n " ^ hline
+
+let string_of_provenances b =
+  let string_of_prov {value; shift} = 
+    Printf.sprintf "<-{%d}-%d" shift value in
+  let string_of_provs = function
+    | [] -> pad 15 "-"
+    | provs -> pad 15 (String.concat "+" (List.map string_of_prov provs)) in
+  let string_of_provenance_row row =
+    String.concat " " (List.map string_of_provs row)
+  in "\n"^ String.concat "\n" (List.map string_of_provenance_row b)
 
 (** Generating random boards *)
 let non_empty_squares = [t2; t4; t8; t16; t32; t64; t128; t256; t512; t1024; t2048]
