@@ -82,18 +82,50 @@ let rec is_complete_row (r : row) : bool =
 let is_board_winning (b : board) =
   List.exists (List.exists is_square_2048) b
 
-(* Populate the first empty spot in a row. *)
-let insert_into_row (sq : square) (l : row) : row option =
-  let replacer s =
-    match s with
-    | None -> Some sq
-    | Some _ -> None
+let is_none s =
+  match s with
+  | Some _ -> false
+  | None -> true
+
+let find_positions p l =
+  let f (positions, i) x =
+    let positions' =
+      match p x with
+      | true -> i :: positions
+      | false -> positions
+    in
+    (positions', succ i)
   in
-  Utils.replace_one replacer l
+  let positions, _ = List.fold_left f ([], 0) l in
+  List.rev positions
+
+let find_coordinates p b =
+  let f row r =
+    let g col = (row, col) in
+    List.map g (find_positions p r)
+  in
+  List.concat (List.mapi f b)
+
+let find_empties = find_coordinates is_none
+
+let rec replace_at n f l =
+  match n, l with
+  | _, [] -> []
+  | 0, x :: xs -> f x :: xs
+  | n, x :: xs -> x :: replace_at (n - 1) f xs
+
+let replace_board_position (row, col) board square =
+  let const_square _ = square in
+  replace_at row (replace_at col const_square) board
 
 (* Insert a square into an unoccupied spot on a board. *)
 let insert_square (sq : square) (b : board) : board option =
-  Utils.replace_one (insert_into_row sq) b
+  match find_empties b with
+  | [] ->
+     None
+  | empties ->
+     Some (replace_board_position
+             (List.nth empties (Random.int (List.length empties))) b sq)
 
 let board_size = Utils.listlist_dims
 let fold_board = Utils.fold_listlisti
