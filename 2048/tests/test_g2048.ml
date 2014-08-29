@@ -282,6 +282,32 @@ let test_shifts () =
       (shift_board U (shift_board U board));
   end
 
+(* Some tests for provenance using a single row *)
+let test_row_provenance () =
+  assert_equal
+    ~msg:"provenance after shifting the only tile three spaces left"
+    ~printer:string_of_provenances
+    [[[{value=2; shift=3}]; []; []; []]]
+    (board_provenance (shift_board L [[empty; empty; empty; t2]]));
+
+  assert_equal
+    ~msg:"provenance after coalescing two tiles"
+    ~printer:string_of_provenances
+    [[[{value=2; shift=1}; {value=2; shift=3}]; []; []; []]]
+    (board_provenance (shift_board L [[empty; t2; empty; t2]]));
+
+  assert_equal
+    ~msg:"provenance after shfiting two tiles"
+    ~printer:string_of_provenances
+    [[[{value=2; shift=1}]; [{value=4; shift=2}]; []; []]]
+    (board_provenance (shift_board L [[empty; t2; empty; t4]]));
+
+  assert_equal
+    ~msg:"Provenance after shift and coalesce"
+    ~printer:string_of_provenances
+    [[[{value=2; shift=0}; {value=2; shift=2}]; [{value=4; shift=2}]; []; []]]
+    (board_provenance (shift_board L [[t2; empty; t2; t4]]))
+
 (* Some tests for provenance *)
 let test_provenance () =
   let board = [[t2   ; empty; t2   ; t4   ];
@@ -292,6 +318,7 @@ let test_provenance () =
 
   begin
     assert_equal
+      ~msg:"Provenance after left shift"
       ~printer:string_of_provenances
       [[[{value=2; shift=0}; {value=2; shift=2}]; [{value=4; shift=2}]; []; []];
        [[{value=2; shift=0}];                     [{value=4; shift=2}]; []; []];
@@ -300,6 +327,7 @@ let test_provenance () =
       (board_provenance (shift_board L board));
 
     assert_equal
+      ~msg:"Provenance after right shift"
       ~printer:string_of_provenances
       [[[]; []; [{value=2; shift=0}; {value=2; shift=2}]; [{value=4; shift=0}]                    ];
        [[]; []; [{value=2; shift=2}];                     [{value=4; shift=0}]                    ];
@@ -308,6 +336,7 @@ let test_provenance () =
       (board_provenance (shift_board R board));
 
     assert_equal
+      ~msg:"Provenance after up shift"
       ~printer:string_of_provenances
       [[[{value=2; shift=0}; {value=2; shift=1}]; []; [{value=2; shift=0}]; [{value=4; shift=0}; {value=4; shift=1}]];
        [[];                                       []; [{value=8; shift=2}]; [{value=8; shift=2}]                    ];
@@ -316,6 +345,7 @@ let test_provenance () =
       (board_provenance (shift_board U board));
 
     assert_equal
+      ~msg:"Provenance after down shift"
       ~printer:string_of_provenances
       [[[];                                       []; [];                   []                                      ];
        [[];                                       []; [];                   []                                      ];
@@ -417,6 +447,9 @@ let suite = "2048 tests" >:::
     test_game_over;
 
    (* 5. tests for provenance *) 
+   test ~stage:5 "test row provenance"
+    test_row_provenance;
+
    test ~stage:5 "test provenance"
     test_provenance;
 
