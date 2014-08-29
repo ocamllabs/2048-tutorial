@@ -118,6 +118,58 @@ let check_insert insert =
 let test_insert () = check_insert insert_square
 
 (* Some tests for shifts *)
+let test_shift_empty () =
+  let empty_row = [[empty; empty; empty; empty]] in
+  assert_equal empty_row
+    ~msg:"Shifting an empty row leaves it unchanged"
+    ~cmp:board_equal
+    ~printer:string_of_board
+    (shift_board L empty_row)
+
+let test_shift_empty_squares () =
+  let row = [[empty; t2; t4; empty]] in
+  assert_equal [[t2; t4; empty; empty]]
+    ~msg:"Shifting moves empty squares to the right (1)"
+    ~cmp:board_equal
+    ~printer:string_of_board
+     (shift_board L row);
+
+  let row = [[t2; empty; empty; t4]] in
+  assert_equal [[t2; t4; empty; empty]]
+    ~msg:"Shifting moves empty squares to the right (2)"
+    ~cmp:board_equal
+    ~printer:string_of_board
+     (shift_board L row)
+
+let test_shift_coalesce () =
+  let row = [[t2; t2; empty; empty]] in
+  assert_equal [[t4; empty; empty; empty]]
+    ~msg:"Shifting coalesces adjacent equal tiles"
+    ~cmp:board_equal
+    ~printer:string_of_board
+     (shift_board L row);
+
+  let row = [[t2; empty; empty; t2]] in
+  assert_equal [[t4; empty; empty; empty]]
+    ~msg:"Shifting coalesces equal tiles with empty squares between them"
+    ~cmp:board_equal
+    ~printer:string_of_board
+     (shift_board L row);
+
+  let row = [[empty; t2; t2; t8]] in
+  assert_equal [[t4; t8; empty; empty]]
+    ~msg:"A single shift can move empties to the right and coalesce tiles"
+    ~cmp:board_equal
+    ~printer:string_of_board
+     (shift_board L row);
+
+  let row = [[empty; t2; t2; t4]] in
+  assert_equal [[t4; t4; empty; empty]]
+    ~msg:"A single shift only coalesces tiles that are initially equal"
+    ~cmp:board_equal
+    ~printer:string_of_board
+     (shift_board L row)
+
 let test_shifts () =
   let board = [[t2   ; empty; t2   ; t4   ];
                [t2   ; empty; empty; t4   ];
@@ -125,53 +177,65 @@ let test_shifts () =
                [empty; empty; t8   ; t8   ]]
   in
   begin
-    assert_equal (shift_board L board)
-      ~cmp:board_equal
-      ~printer:string_of_board
+    assert_equal
       [[t4   ; t4   ; empty; empty];
        [t2   ; t4   ; empty; empty];
        [empty; empty; empty; empty];
-       [t16  ; empty; empty; empty]];
-
-    assert_equal (shift_board R board)
+       [t16  ; empty; empty; empty]]
+      ~msg:"left shift 4x4 board"
       ~cmp:board_equal
       ~printer:string_of_board
+      (shift_board L board);
+
+    assert_equal
       [[empty; empty; t4   ; t4   ];
        [empty; empty; t2   ; t4   ];
        [empty; empty; empty; empty];
-       [empty; empty; empty; t16  ]];
-
-    assert_equal (shift_board U board)
+       [empty; empty; empty; t16  ]]
+      ~msg:"right shift 4x4 board"
       ~cmp:board_equal
       ~printer:string_of_board
+      (shift_board R board);
+
+    assert_equal
       [[t4   ; empty; t2   ; t8   ];
        [empty; empty; t8   ; t8   ];
        [empty; empty; empty; empty];
-       [empty; empty; empty; empty]];
-
-    assert_equal (shift_board D board)
+       [empty; empty; empty; empty]]
+      ~msg:"up shift 4x4 board"
       ~cmp:board_equal
       ~printer:string_of_board
+      (shift_board U board);
+
+    assert_equal
       [[empty; empty; empty; empty];
        [empty; empty; empty; empty];
        [empty; empty; t2   ; t8   ];
-       [t4   ; empty; t8   ; t8   ]];
-
-    assert_equal (shift_board L (shift_board L board))
+       [t4   ; empty; t8   ; t8   ]]
+      ~msg:"down shift 4x4 board"
       ~cmp:board_equal
       ~printer:string_of_board
+      (shift_board D board);
+
+    assert_equal
       [[t8   ; empty; empty; empty];
        [t2   ; t4   ; empty; empty];
        [empty; empty; empty; empty];
-       [t16  ; empty; empty; empty]];
-
-    assert_equal (shift_board U (shift_board U board))
+       [t16  ; empty; empty; empty]]
+      ~msg:"double left shift 4x4 board"
       ~cmp:board_equal
       ~printer:string_of_board
+      (shift_board L (shift_board L board));
+
+    assert_equal 
       [[t4   ; empty; t2   ; t16  ];
        [empty; empty; t8   ; empty];
        [empty; empty; empty; empty];
-       [empty; empty; empty; empty]];
+       [empty; empty; empty; empty]]
+      ~msg:"double up shift 4x4 board"
+      ~cmp:board_equal
+      ~printer:string_of_board
+      (shift_board U (shift_board U board));
   end
 
 (* Some tests for provenance *)
@@ -279,6 +343,15 @@ let suite = "2048 tests" >:::
     test_is_board_winning;
 
    (* 2. tests for shifts *)
+   test ~stage:2 "test shifting empty rows"
+    test_shift_empty;
+
+   test ~stage:2 "test shifting moves empty squares to the right"
+    test_shift_empty_squares;
+
+   test ~stage:2 "test shifting can coalesce equal squares"
+    test_shift_coalesce;
+
    test ~stage:2 "test shifts"
     test_shifts;
 
