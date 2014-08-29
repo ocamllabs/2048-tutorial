@@ -1,6 +1,6 @@
 open G2048
 
-let current_stage = 2
+let current_stage = 3
 
 (** Formatting for boards *)
 let repeat_string n s =
@@ -42,7 +42,7 @@ let arbitrary_full_board ?(size=4) : board QCheck.Arbitrary.t =
 
 let rec iter n f x = if n = 0 then x else iter (n - 1) f (f x)
 
-let sorted_squares : square list -> square list = List.sort Pervasives.compare
+let sorted_squares : int option list -> int option list = List.sort Pervasives.compare
 let board_squares = List.concat
 
 let board_map f b = List.map (List.map f) b
@@ -56,7 +56,9 @@ let board_equal b1 b2 =
  && List.for_all2 row_equal b1 b2
 
 let board_provenance = board_map square_provenances
-
+let board_value_list b = 
+  List.sort Pervasives.compare
+   (board_squares (board_map square_value b))
 
 let is_row_full r = not (List.exists ((=)empty) r)
 

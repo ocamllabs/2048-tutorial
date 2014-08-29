@@ -104,16 +104,17 @@ let test_is_board_winning () =
                          [empty; empty]]);
   end
 
-let check_insert insert =
+(* Tests for insert_square *)
+let test_insert () =
   let insert_property square board =
-    let ofSome = function Some x -> x | None -> assert false in
-   (* rely on the fact that `sort_squares` places empties first *)
     assert (not (is_board_full board));
-    match insert square board with
+    match insert_square square board with
     | Some board' -> 
-       (sorted_squares (board_squares board')
-        =
-        sorted_squares (square :: List.tl (sorted_squares (board_squares board))))
+         board_value_list board'
+         =
+         (* rely on the fact that `sort_squares` places empties first *)
+         List.sort Pervasives.compare
+           (square_value square :: List.tl (board_value_list board))
     | None -> failwith "Insertion failed"
   in
   check_board_property "insert_into_board adds a square to the board"
@@ -121,8 +122,44 @@ let check_insert insert =
                      ==>
                   (insert_property t8)))
 
-(* Tests for insert_square *)
-let test_insert () = check_insert insert_square
+let test_insert_row_completely_empty () =
+  assert_equal [None; None; None; Some 2]
+  ~msg:"Inserting into a completely empty row"
+  (match insert_square t2 [[empty; empty; empty; empty]] with
+   | Some board -> board_value_list board
+   | None -> failwith "Insertion failed")
+
+let string_of_int_option_list l =
+  let string_of_int_option = function
+    | None -> "-"
+    | Some x -> string_of_int x in
+  Printf.sprintf "[%s]" (String.concat " " (List.map string_of_int_option l))
+
+let test_insert_row_partially_empty () =
+  assert_equal [None; None; Some 2; Some 4]
+  ~msg:"Inserting into a partially empty row"
+  ~printer:string_of_int_option_list
+  (match insert_square t2 [[empty; t4; empty; empty]] with
+   | Some board -> board_value_list board
+   | None -> failwith "Insertion failed")
+
+let test_insert_row_full () =
+  assert_equal None
+  ~msg:"Inserting into a completely full row"
+  (insert_square t2 [[t8; t4; t2; t16]])
+
+let test_insert_last_square () =
+  assert_equal [[t8 ; t16; t8   ];
+                [t8 ; t2 ; t128 ];
+                [t32; t64; t32  ]]
+  ~cmp:board_equal
+  ~msg:"Inserting into an almost full board"
+  (match insert_square t128 
+                       [[t8 ; t16; t8   ];
+                        [t8 ; t2 ; empty ];
+                        [t32; t64; t32  ]] with
+   | Some board -> board
+   | None -> failwith "Insertion failed")
 
 (* Some tests for shifts *)
 let test_shift_empty () =
@@ -366,6 +403,18 @@ let suite = "2048 tests" >:::
     test_shift_board_fixpoint;
 
    (* 3. tests for insertions *)
+   test ~stage:3 "insertion into completely empty rows"
+    test_insert_row_completely_empty;
+
+   test ~stage:3 "insertion into partially empty rows"
+    test_insert_row_partially_empty;
+
+   test ~stage:3 "insertion into full rows"
+    test_insert_row_full;
+
+   test ~stage:3 "insertion into last empty square"
+    test_insert_last_square;
+
    test ~stage:3 "squares can be added to a board that is not fully-populated"
     test_add;
 
