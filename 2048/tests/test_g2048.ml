@@ -59,34 +59,43 @@ let test_is_board_full () =
 let test_is_board_winning () =
   begin
     assert_equal false
+      ~msg:"An empty board is a winning board"
       (is_board_winning []);
 
     assert_equal true
+      ~msg:"A 1x1 board containing 2048 is a winning board"
       (is_board_winning [[t2048]]);
 
     assert_equal true
+      ~msg:"A shifted 1x1 board containing 2048 is a winning board"
       (is_board_winning (shift_board L [[t2048]]));
 
     assert_equal false
+      ~msg:"A full 2x2 board without 2048 is not a winning board"
       (is_board_winning [[t2; t4 ];
                          [t8; t16]]);
 
     assert_equal true
+      ~msg:"A full 2x2 board containing 2048 is a winning board"
       (is_board_winning [[t2048; t2 ];
                          [t8   ; t16]]);
 
     assert_equal true
+      ~msg:"A partially-full 2x2 board containing 2048 is a winning board"
       (is_board_winning [[t2048; empty];
                          [t8   ; t16  ]]);
 
     assert_equal true
+      ~msg:"A shifted partially-full 2x2 board containing 2048 is a winning board"
       (is_board_winning (shift_board L [[t2048; empty];
                                         [t8   ; t16  ]]));
 
     assert_equal false
+      ~msg:"A 1x1 empty board is not a winning board"
       (is_board_winning [[empty]]);
 
     assert_equal false
+      ~msg:"A 2x2 empty board is not a winning board"
       (is_board_winning [[empty; empty];
                          [empty; empty]]);
   end
@@ -264,31 +273,31 @@ let test_game_over () =
   end
 
 let suite = "2048 tests" >:::
-  [test ~stage:1 "a fixpoint is reached after width(board) shift_boards"
-    test_shift_board_fixpoint;
-
-   test ~stage:2 "squares can be added to a board that is not fully-populated"
-    test_add;
-
-   test ~stage:3 "squares cannot be added to a fully-populated board"
-    test_add_to_full;
-
-   test ~stage:4 "test is_board_full"
-    test_is_board_full;
-
-   test ~stage:5 "test insert_square"
-    test_insert;
-
-   test ~stage:6 "test movements"
-    test_movements;
-
-   test ~stage:7 "test provenance"
-    test_provenance;
-
-   test ~stage:8 "test is_board_winning"
+  [test ~stage:1 "test is_board_winning"
     test_is_board_winning;
 
-   test ~stage:9 "test game over"
+   test ~stage:100 "a fixpoint is reached after width(board) shift_boards"
+    test_shift_board_fixpoint;
+
+   test ~stage:100 "squares can be added to a board that is not fully-populated"
+    test_add;
+
+   test ~stage:100 "squares cannot be added to a fully-populated board"
+    test_add_to_full;
+
+   test ~stage:100 "test is_board_full"
+    test_is_board_full;
+
+   test ~stage:100 "test insert_square"
+    test_insert;
+
+   test ~stage:100 "test movements"
+    test_movements;
+
+   test ~stage:100 "test provenance"
+    test_provenance;
+
+   test ~stage:100 "test game over"
     test_game_over;
   ]
 let _ =
