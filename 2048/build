@@ -19,7 +19,7 @@ action ()
         app)
             shift
             $OCAMLBUILD -no-links main.js 2048.html
-            if [ "$1" == "-b" ]; then
+            if [ "$1" = "-b" ]; then
                 $RELOAD_BROWSER "file://`pwd`/_build/src/2048.html"
             fi
             ;;
@@ -31,7 +31,7 @@ action ()
             shift
             $OCAMLBUILD -no-links $OCAMLDOCFLAGS doc/api.docdir/index.html
             cp doc/style.css _build/doc/api.docdir/
-            if [ "$1" == "-b" ]; then
+            if [ "$1" = "-b" ]; then
                 $RELOAD_BROWSER "file://`pwd`/_build/doc/api.docdir/"
             fi
             ;;
