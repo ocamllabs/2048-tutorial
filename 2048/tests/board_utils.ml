@@ -1,6 +1,6 @@
 open G2048
 
-let current_stage = 3
+let current_stage = 4
 
 (** Formatting for boards *)
 let repeat_string n s =
