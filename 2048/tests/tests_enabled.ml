@@ -7,7 +7,7 @@ type stages =
 
 let tests_enabled = [
   Winning_board;
-  (* Shifting; *)
+  Shifting;
   (* Inserting; *)
   (* Game_over; *)
   (* Provenance; *)

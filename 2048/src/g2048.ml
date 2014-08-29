@@ -97,15 +97,28 @@ type move = L | R | U | D
    append `empties`.  Tiles slide over empty squares, and adjacent
    tiles are coalesced if they have the same value. *)
 let rec shift_left_helper (r : row) (empties : row) : row =
-  r (* TODO.  Hint: use pattern matching on r and recursion. *)
+  match r with
+  | [] ->
+     empties
+  | None :: rest ->
+     shift_left_helper rest (None :: empties)
+  | Some x :: Some y :: rest when x = y ->
+     Some (x + y) :: shift_left_helper rest (None :: empties)
+  | Some x :: None :: rest ->
+     shift_left_helper (Some x :: rest) (None :: empties)
+  | Some x :: r ->
+     Some x :: shift_left_helper r empties
 
 let shift_left (r : row) = shift_left_helper r []
+let shift_right l = List.rev (shift_left (List.rev l))
 
 (* Shift a row in the specified direction according to the rules of the game. *)
 let rec shift_board (mv : move) (b : board) : board =
-  (* TODO.  Hint: use pattern matching on mv and shift_left, List.rev
-     and Utils.transpose. *)
-  b
+  match mv with
+  | L -> List.map shift_left b
+  | R -> List.map shift_right b
+  | U -> Utils.transpose (shift_board L (Utils.transpose b))
+  | D -> Utils.transpose (shift_board R (Utils.transpose b))
 
 (** High-level interface. *)
 let game_move (mv : move) (b : board) : board =
