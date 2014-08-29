@@ -20,23 +20,12 @@ let test_add_to_full () =
   check_full_board_property "Squares cannot be added to a fully-populated board"
     (fun board -> insert_square t2 board = None)
 
-let test_add_random_to_full () =
-  check_full_board_property "Squares cannot be randomly added to a fully-populated board"
-    (fun board -> insert_random_square t2 board = None)
-
 let test_add () =
   check_board_property "Squares can be added to a board with spaces"
     QCheck.(Prop.((fun board -> not (is_board_full board))
                   ==>
                   (fun board ->
                     insert_square t2 board <> None)))
-
-let test_add_random () =
-  check_board_property "Squares can be randomly added to a board with spaces"
-    QCheck.(Prop.((fun board -> not (is_board_full board))
-                  ==>
-                  (fun board ->
-                    insert_random_square t2 board <> None)))
 
 (* Some tests for is_board_full *)
 let test_is_board_full () =
@@ -118,9 +107,6 @@ let check_insert insert =
 
 (* Tests for insert_square *)
 let test_insert () = check_insert insert_square
-
-(* Tests for insert_random_square *)
-let test_insert_random () = check_insert insert_random_square
 
 (* Some tests for movements *)
 let test_movements () =
@@ -284,34 +270,25 @@ let suite = "2048 tests" >:::
    test ~stage:2 "squares can be added to a board that is not fully-populated"
     test_add;
 
-   test ~stage:3 "squares can be randomly added to a board that is not fully-populated"
-    test_add_random;
-
-   test ~stage:4 "squares cannot be added to a fully-populated board"
+   test ~stage:3 "squares cannot be added to a fully-populated board"
     test_add_to_full;
 
-   test ~stage:5 "squares cannot be randomly added to a fully-populated board"
-    test_add_random_to_full;
-
-   test ~stage:6 "test is_board_full"
+   test ~stage:4 "test is_board_full"
     test_is_board_full;
 
-   test ~stage:7 "test insert_square"
+   test ~stage:5 "test insert_square"
     test_insert;
 
-   test ~stage:8 "test insert_random_square"
-    test_insert_random;
-
-   test ~stage:9 "test movements"
+   test ~stage:6 "test movements"
     test_movements;
 
-   test ~stage:10 "test provenance"
+   test ~stage:7 "test provenance"
     test_provenance;
 
-   test ~stage:11 "test is_board_winning"
+   test ~stage:8 "test is_board_winning"
     test_is_board_winning;
 
-   test ~stage:12 "test game over"
+   test ~stage:9 "test game over"
     test_game_over;
   ]
 let _ =
