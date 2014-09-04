@@ -31,6 +31,12 @@ $ opam install iocaml
 
 IOCaml relies on a couple of non-OCaml libraries: libffi and libzmq.  You should install these using your system's package manager.
 
+You can make a local copy of the repository containing the tutorial files using `git clone`:
+
+```bash
+$ git clone https://github.com/ocamllabs/cufp-tutorial.git
+```
+
 #### Running the notebooks
 
 Once you've installed IOCaml, the following command will start the IOCaml server and open the notebooks in your browser.
