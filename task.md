@@ -85,7 +85,7 @@ Uncomment the `Shifting` entry in the `tests_enabled` list in `2048/tests/test_e
 - The row is empty.  There's nothing to do except return the accumulated `empties` list.
 - The first square is unoccupied (`None`).  Add it to `empties` and process the rest of the row.
 - The first two squares are occupied by equal tiles.  Merge them together, add an entry to the `empties` list, and process the rest of the row.
-- The first square is unoccupied, but the second square is unoccupied.  Move the unoccupied square to the `empties` list and reprocess the row.
+- The first square is occupied, but the second square is unoccupied.  Move the unoccupied square to the `empties` list and reprocess the row.
 - The first square is occupied and not covered by the cases above.  Move on to processing the rest of the list.
 
 * Implement the `shift_board` function using `shift_left_helper`.  Hint: how can you implement a right shift in terms of a left shift?  How can you implement an up shift in terms of a left shift?
