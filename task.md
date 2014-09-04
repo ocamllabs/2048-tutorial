@@ -72,9 +72,9 @@ FAILED: Cases: 17 Tried: 17 Errors: 0 Failures: 1 Skip:  0 Todo: 15 Timeouts: 0.
 
 ![2048](images/you-win.png)
 
-As the output above shows, the tests for whether a board is a winning board are failing.  Your first task is to fix the tests.
+As the output above shows, the tests for whether a board is a winning board are failing.  Your first task is to fix the code so that the tests pass.
 
-* Write a function `is_square_2048` which returns `true` if a square has the value `2048` and `false` otherwise.
+* Complete the function `is_square_2048` in the file `g2048.ml`.  The function should return `true` if a square has the value `2048` and `false` otherwise.
 
 * Write the `is_board_winning` function using `is_square_2048`.  The `List.exists` function (which you can try out in an IOCaml notebook) may prove useful.
 
