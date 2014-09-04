@@ -1,6 +1,8 @@
 An implementation of [2048][twentyfortyeight] in OCaml, designed for
 use in tutorials.
 
+[Click here for the instructions][task]
+
 Prerequisites:
 
  * [Gg][gg], basic types for computer graphics
@@ -19,3 +21,4 @@ Prerequisites:
 [react]: http://erratique.ch/software/react
 [useri]: http://erratique.ch/software/useri 
 [js_of_ocaml]: http://ocsigen.org/js_of_ocaml/
+[task]: task.md
