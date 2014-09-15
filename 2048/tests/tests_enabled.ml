@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 2014 Jeremy Yallop.
  *
- * This file is distributed under the terms of the BSD3 License.
+ * This file is distributed under the terms of the BSD2 License.
  * See the file COPYING for details.
  *)
 
