@@ -1,4 +1,9 @@
-
+(*
+ * Copyright (c) 2014 Daniel C. Bünzli.
+ *
+ * This file is distributed under the terms of the BSD3 License.
+ * See the file COPYING for details.
+ *)
 
 open Gg
 

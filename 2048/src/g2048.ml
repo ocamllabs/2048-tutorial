@@ -1,3 +1,10 @@
+(*
+ * Copyright (c) 2014 Jeremy Yallop.
+ *
+ * This file is distributed under the terms of the BSD3 License.
+ * See the file COPYING for details.
+ *)
+
 let () = Random.self_init () (* get a seed for random numbers *)
 
 (** Squares and tiles *)
