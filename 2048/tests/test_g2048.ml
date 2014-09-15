@@ -358,7 +358,7 @@ let test_provenance () =
 let test_game_over () =
   begin
     assert_equal true
-      ~msg:"The game is over in the board has size 0x0"
+      ~msg:"The game is over if the board has size 0x0"
      (is_game_over
         []);
 
