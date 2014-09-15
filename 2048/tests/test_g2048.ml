@@ -358,9 +358,15 @@ let test_provenance () =
 let test_game_over () =
   begin
     assert_equal true
-      ~msg:"The game is over if the board is empty"
+      ~msg:"The game is over in the board has size 0x0"
      (is_game_over
         []);
+
+    assert_equal false
+      ~msg:"The game is not over if the board is completely empty"
+     (is_game_over
+        [[empty; empty;];
+         [empty; empty;]]);
 
     assert_equal false
       ~msg:"The game is not over if there are empty squares"
