@@ -56,13 +56,19 @@ module Make (Solution: G2048.Solution) = struct
     App.sink_event (S.sample (render_display r) Surface.refresh display);
     ()
 
+  let clear () =
+    let id2048 = Dom_html.getElementById "2048" in
+    let nodes = Dom.list_of_nodeList (id2048 ## childNodes) in
+    List.iter (Dom.removeChild id2048) nodes
+
   let start () =
-    let key_target = Some (Dom_html.window :> Dom_html.eventTarget Js.t) in
+    clear ();
     let canvas = Dom_html.(createCanvas document) in
     let id2048 = Dom_html.getElementById "2048" in
     Dom.appendChild id2048 canvas;
     let handle = Useri_jsoo.Surface.Handle.of_js canvas in
     let surface = Surface.create ~kind:`Other ~handle () in
+    let key_target = Some (id2048 :> Dom_html.eventTarget Js.t) in
     Useri_jsoo.Key.set_event_target key_target;
     match App.init ~surface () with
     | `Error e -> Printf.eprintf "%s" e; exit 1
