@@ -40,7 +40,6 @@ type board = row list
 type move = L | R | U | D
 
 module type Solution = sig
-  val square_provenances: square -> provenance list
   val is_square_2048: square -> bool
   val is_complete_row: row -> bool
   val is_board_winning : board -> bool

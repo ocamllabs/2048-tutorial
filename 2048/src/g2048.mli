@@ -7,10 +7,27 @@
 
 (** 2048 game logic. *)
 
-(** {1 Square} *)
+(** {1 Types} *)
 
 type square
 (** The type for squares. *)
+
+type row = square list
+(** The type for board rows. *)
+
+type board = row list
+(** The type for boards. *)
+
+(** The type for game moves.
+    {ul
+    {- [L] when the player press the left arrow.}
+    {- [R] when the player press the up arrow.}
+    {- [U] when the player press the up arrow.}
+    {- [D] when the player press the down arrow.}}
+*)
+type move = L | R | U | D
+
+(** {2 Squares} *)
 
 val empty : square
 (** [empty] is an empty square. *)
@@ -54,18 +71,7 @@ val square_value : square -> int option
 val string_of_square : square -> string
 (** [string_of_square t] is [t] as a string. *)
 
-(** {1 Provenance} *)
-
-type provenance = { shift : int; value : int }
-(** The provenance of a tile *)
-
-(** {1 Boards} *)
-
-type row = square list
-(** The type for board rows. *)
-
-type board = row list
-(** The type boards. *)
+(** {2 Boards} *)
 
 val create_board : unit -> board
 (** [create_board ()] is a new board. *)
@@ -78,15 +84,14 @@ val fold_board : ('a -> (int * int) -> square -> 'a) -> 'a -> board -> 'a
     the zero-based positions and starting with [acc]. The left-bottom
     corner has position [(0,0)]. *)
 
-(** {1 Moves} *)
+(** {1 Provenance} *)
 
-(** The type for game moves. *)
-type move = L | R | U | D
+type provenance = { shift : int; value : int }
+(** The provenance of a tile. {e Not used by the online tutorial.} *)
+
+(** {1 Solutions} *)
 
 module type Solution = sig
-
-  val square_provenances: square -> provenance list
-  (** [square_provenances s] are the tile provenances on a square. *)
 
   val is_square_2048: square -> bool
   (** Whether a square is occupied by a tile with the value 2048. *)
@@ -114,6 +119,10 @@ module type Solution = sig
 
   val is_game_over : board -> bool
   (** [is_game_over board] is [true] iff there are no valid moves. *)
+
+  val square_provenances: square -> provenance list
+  (** [square_provenances s] are the tile provenances on a square. {e Not
+      used by the online tutorial.} *)
 
 end
 
