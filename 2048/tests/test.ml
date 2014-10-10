@@ -418,7 +418,6 @@ let test_game_over () =
   end
 
 let suite = "2048 tests" >:::
-  let open Tests_enabled in
   [
    (* 1. tests for is_board_winning *)
    "is_board_winning: test" >:: test_is_board_winning;
