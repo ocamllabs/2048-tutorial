@@ -9,6 +9,12 @@ open OUnit
 open G2048
 open Board_utils
 
+module Make (S: Solution) = struct
+
+include Make(S)
+
+let board_provenance = board_map square_provenances
+
 let mk_board_test = QCheck.mk_test ~n:1000 ~pp:string_of_board
 
 let check_board_property name ?size (prop : board -> bool) =
@@ -116,7 +122,7 @@ let test_insert () =
   let insert_property square board =
     assert (not (is_board_full board));
     match insert_square square board with
-    | Some board' -> 
+    | Some board' ->
          board_value_list board'
          =
          (* rely on the fact that `sort_squares` places empties first *)
@@ -161,7 +167,7 @@ let test_insert_last_square () =
                 [t32; t64; t32  ]]
   ~cmp:board_equal
   ~msg:"Inserting into an almost full board"
-  (match insert_square t128 
+  (match insert_square t128
                        [[t8 ; t16; t8   ];
                         [t8 ; t2 ; empty ];
                         [t32; t64; t32  ]] with
@@ -278,7 +284,7 @@ let test_shifts () =
       ~printer:string_of_board
       (shift_board L (shift_board L board));
 
-    assert_equal 
+    assert_equal
       [[t4   ; empty; t2   ; t16  ];
        [empty; empty; t8   ; empty];
        [empty; empty; empty; empty];
@@ -412,64 +418,39 @@ let test_game_over () =
   end
 
 let suite = "2048 tests" >:::
-  let open Tests_enabled in 
+  let open Tests_enabled in
   [
    (* 1. tests for is_board_winning *)
-   test ~stage:Winning_board "test is_board_winning"
-    test_is_board_winning;
+   "is_board_winning: test" >:: test_is_board_winning;
 
    (* 2. tests for shifts *)
-   test ~stage:Shifting "test shifting empty rows"
-    test_shift_empty;
-
-   test ~stage:Shifting "test shifting moves empty squares to the right"
-    test_shift_empty_squares;
-
-   test ~stage:Shifting "test shifting can coalesce equal squares"
-    test_shift_coalesce;
-
-   test ~stage:Shifting "test shifts"
-    test_shifts;
-
-   test ~stage:Shifting "a fixpoint is reached after width(board) shift_boards"
-    test_shift_board_fixpoint;
+   "shift: test shifting empty rows" >:: test_shift_empty;
+   "shift: test shifting moves empty squares to the right" >:: test_shift_empty_squares;
+   "shift: test shifting can coalesce equal squares" >:: test_shift_coalesce;
+   "shift: test shifts" >:: test_shifts;
+   "shift: a fixpoint is reached after width(board) shift_boards" >:: test_shift_board_fixpoint;
 
    (* 3. tests for insertions *)
-   test ~stage:Inserting "insertion into completely empty rows"
-    test_insert_row_completely_empty;
-
-   test ~stage:Inserting "insertion into partially empty rows"
-    test_insert_row_partially_empty;
-
-   test ~stage:Inserting "insertion into full rows"
-    test_insert_row_full;
-
-   test ~stage:Inserting "insertion into last empty square"
-    test_insert_last_square;
-
-   test ~stage:Inserting "squares can be added to a board that is not fully-populated"
-    test_add;
-
-   test ~stage:Inserting "squares cannot be added to a fully-populated board"
-    test_add_to_full;
-
-   test ~stage:Inserting "test insert_square"
-    test_insert;
+   "insert: insertion into completely empty rows" >:: test_insert_row_completely_empty;
+   "insert: insertion into partially empty rows" >:: test_insert_row_partially_empty;
+   "insert: insertion into full rows" >:: test_insert_row_full;
+   "insert: insertion into last empty square" >:: test_insert_last_square;
+   "insert: squares can be added to a board that is not fully-populated" >:: test_add;
+   "insert: squares cannot be added to a fully-populated board" >:: test_add_to_full;
+   "insert: test insert_square" >:: test_insert;
 
    (* 4. tests for is_game_over *)
-   test ~stage:Game_over "test game over"
-    test_game_over;
+   "is_game_ovver: test game over" >:: test_game_over;
 
-   (* 5. tests for provenance *) 
-   test ~stage:Provenance "test row provenance"
-    test_row_provenance;
-
-   test ~stage:Provenance "test provenance"
-    test_provenance;
+   (* 5. tests for provenance *)
+   "provenance: test row provenance" >:: test_row_provenance;
+   "provenance: test provenance" >:: test_provenance;
 
    (* Always-on tests *)
-   test "test is_board_full"
-    test_is_board_full;
+   "test is_board_full" >:: test_is_board_full;
   ]
-let _ =
+
+let run () =
   run_test_tt_main suite
+
+end

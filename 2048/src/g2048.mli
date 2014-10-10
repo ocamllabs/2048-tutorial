@@ -59,9 +59,6 @@ val string_of_square : square -> string
 type provenance = { shift : int; value : int }
 (** The provenance of a tile *)
 
-val square_provenances : square -> provenance list
-(** [square_provenances s] are the tile provenances on a square. *)
-
 (** {1 Boards} *)
 
 type row = square list
@@ -72,16 +69,6 @@ type board = row list
 
 val create_board : unit -> board
 (** [create_board ()] is a new board. *)
-
-val insert_square : square -> board -> board option
-(** [insert_square square board] is [board] with [square] inserted in an
-    empty spot or [None] if there was no such spot. *)
-
-val is_game_over : board -> bool
-(** [is_game_over board] is [true] iff there are no valid moves. *)
-
-val is_board_winning : board -> bool
-(** [is_board_winning board] is [true] iff the [board] is a winning board. *)
 
 val board_size : board -> int * int
 (** [board_size board] is the number of columns and rows in the board. *)
@@ -96,10 +83,48 @@ val fold_board : ('a -> (int * int) -> square -> 'a) -> 'a -> board -> 'a
 (** The type for game moves. *)
 type move = L | R | U | D
 
-val shift_board : move -> board -> board
-(** [shift_board move board] is the board resulting from shifting [board]
-    in direction [move]. *)
+module type Solution = sig
 
-val game_move : move -> board -> board
-(** [game_move move board] is the board resulting from shifting [board]
-    in direction [move] and inserts a new square if the board is not full. *)
+  val square_provenances: square -> provenance list
+  (** [square_provenances s] are the tile provenances on a square. *)
+
+  val is_square_2048: square -> bool
+  (** Whether a square is occupied by a tile with the value 2048. *)
+
+  val is_complete_row: row -> bool
+  (** A row is complete if
+     * it contains no empty squares and
+     * a shift leaves it unchanged *)
+
+  val is_board_winning : board -> bool
+  (** [is_board_winning board] is [true] iff the [board] is a winning board. *)
+
+  val insert_square : square -> board -> board option
+  (** [insert_square square board] is [board] with [square] inserted
+      in an empty spot or [None] if there was no such spot. *)
+
+  val shift_left_helper: row -> row -> row
+  (** Shift a row to the left according to the rules of the game, and
+      append `empties`.  Tiles slide over empty squares, and adjacent
+      tiles are coalesced if they have the same value. *)
+
+  val shift_board : move -> board -> board
+  (** [shift_board move board] is the board resulting from shifting
+      [board] in direction [move]. *)
+
+  val is_game_over : board -> bool
+  (** [is_game_over board] is [true] iff there are no valid moves. *)
+
+end
+
+module Default: Solution
+
+module Make (S: Solution): sig
+
+  include Solution
+
+  val game_move : move -> board -> board
+  (** [game_move move board] is the board resulting from shifting [board]
+      in direction [move] and inserts a new square if the board is not full. *)
+
+end

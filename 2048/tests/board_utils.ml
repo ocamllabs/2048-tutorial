@@ -32,7 +32,7 @@ let string_of_board b =
   "\n " ^ hline ^ "\n" ^ body ^ "\n " ^ hline
 
 let string_of_provenances b =
-  let string_of_prov {value; shift} = 
+  let string_of_prov {value; shift} =
     Printf.sprintf "<-{%d}-%d" shift value in
   let string_of_provs = function
     | [] -> pad 15 "-"
@@ -74,12 +74,10 @@ let board_equal b1 b2 =
     List.length b1 = List.length b2
  && List.for_all2 row_equal b1 b2
 
-let board_provenance = board_map square_provenances
-let board_value_list b = 
+let board_value_list b =
   List.sort Pervasives.compare
    (board_squares (board_map square_value b))
 
 let is_row_full r = not (List.exists ((=)empty) r)
 
 let is_board_full b = List.for_all is_row_full b
-
