@@ -3,6 +3,7 @@
 <src> : include
 <src/*> : package(vg), package(vg.htmlc), package(react), package(js_of_ocaml)
 <src/*.js> : weak_js
+<src/main.*> : package(js_of_ocaml.syntax), syntax(camlp4o)
 
 <useri> : include
 <useri/*> : package(gg), package(react)
