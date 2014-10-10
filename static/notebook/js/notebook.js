@@ -177,7 +177,8 @@ var IPython = (function (IPython) {
                 }
                 return false;
             } else if (event.which === key.ENTER && event.ctrlKey) {
-                that.execute_selected_cell({terminal:true});
+                // that.execute_selected_cell({terminal:true});
+                that.execute_all_cells();
                 return false;
             } else if (event.which === 77 && event.ctrlKey && that.control_key_active == false) {
                 that.control_key_active = true;
