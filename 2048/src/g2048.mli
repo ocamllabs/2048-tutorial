@@ -9,7 +9,10 @@
 
 (** {1 Types} *)
 
-type square = int option
+type provenance = { shift : int; value : int }
+(** The provenance of a tile. {e Not used by the online tutorial.} *)
+
+type square = (int * provenance list) option
 (** The type for squares. *)
 
 type row = square list
@@ -83,11 +86,6 @@ val fold_board : ('a -> (int * int) -> square -> 'a) -> 'a -> board -> 'a
 (** [fold_board f acc board] folds [f] over all the squares of [board] with
     the zero-based positions and starting with [acc]. The left-bottom
     corner has position [(0,0)]. *)
-
-(** {1 Provenance} *)
-
-type provenance = { shift : int; value : int }
-(** The provenance of a tile. {e Not used by the online tutorial.} *)
 
 (** {1 Solutions} *)
 

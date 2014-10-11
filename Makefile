@@ -4,7 +4,8 @@ IOCAML  = $(shell opam config var iocamljs-kernel:lib)
 STATIC  = static/services/kernels/js/kernel.2048.js
 PROFILE = profile/static/services/kernels/js/kernel.js
 DOC     = doc/index.html
-FILES   = static notebooks doc index.html basics.html adt.html modules.html
+FILES   = static notebooks doc index.html basics.html adt.html modules.html solved.html \
+	  2048/src/2048.html 2048/_build/src/local.js
 
 all:
 	@echo "Run './build' in the '2048/' directory to compile the project."
