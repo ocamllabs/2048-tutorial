@@ -22,13 +22,16 @@ $(STATIC) $(PROFILE):
 	  -export-package js_of_ocaml \
 	  -export-package lwt \
 	  -export-package iocamljs-kernel \
+	  -export-package qcheck \
+	  -export-package ounit \
 	  -export-unit useri \
 	  -export-unit useri_jsoo \
 	  -export-unit utils \
 	  -export-unit anim \
 	  -export-unit g2048 \
 	  -export-unit main \
-	  -jsopt +weak.js -jsopt +toplevel.js \
+	  -export-unit test \
+	  -jsopt +weak.js -jsopt +toplevel.js -jsopt unix.js \
 	  -jsopt -I -jsopt ./2048/_build/useri \
 	  -jsopt -I -jsopt ./2048/_build/src \
 	  -jsopt -I -jsopt ./2048/_build/tests \
@@ -42,6 +45,8 @@ $(STATIC) $(PROFILE):
 	  ./2048/_build/src/anim.cmo \
 	  ./2048/_build/src/render.cmo \
 	  ./2048/_build/src/main.cmo \
+	  ./2048/_build/tests/board_utils.cmo \
+	  ./2048/_build/tests/test.cmo \
 	  -o iocaml.byte
 	mkdir -p $(shell dirname $(PROFILE))
 	mkdir -p $(shell dirname $(STATIC))
@@ -56,7 +61,7 @@ $(DOC):
 
 clean:
 	cd 2048 && ./build clean
-	rm -f *.js *~ $(PROFILE) $(STATIC) iocaml.byte $(DOC)
+	rm -f *.cmis.js *~ $(PROFILE) $(STATIC) iocaml.byte $(DOC)
 
 update: $(PROFILE) $(STATIC) $(DOC)
 	rsync -avz -e "ssh $(PORT)" $(FILES) $(DEST)

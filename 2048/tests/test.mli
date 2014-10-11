@@ -5,6 +5,10 @@
  * See the file COPYING for details.
  *)
 
-module Make (S: G2048.Solution): sig
+open G2048
+
+val test_is_board_winning: (board -> bool) -> unit
+
+module Make (S: Solution): sig
   val run: unit -> OUnit.test_results
 end
