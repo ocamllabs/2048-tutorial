@@ -5,9 +5,50 @@
  * See the file COPYING for details.
  *)
 
-open OUnit
 open G2048
 open Board_utils
+
+exception Error of string
+
+let assert_equal ?ctxt ?(cmp = ( = )) ?printer ?pp_diff ?msg expected actual =
+  let string_error () =
+    let fmt = Format.str_formatter in
+    Format.pp_open_vbox fmt 0;
+    let () = match msg with
+    | Some s ->
+        Format.pp_open_box fmt 0;
+        Format.pp_print_string fmt (Printf.sprintf "== TEST: %s" s);
+        Format.pp_close_box fmt ();
+        Format.pp_print_cut fmt ()
+    | None -> ()
+    in
+    let () = match printer with
+    | Some p ->
+        Format.fprintf fmt
+          "@[=> ERROR@,Expected: @[%s@]@ but got: @[%s@]@]@,"
+          (p expected)
+          (p actual)
+
+    | None -> Format.fprintf fmt "@[=> ERROR@]@,"
+    in
+    let () = match pp_diff with
+    | Some d ->
+        Format.fprintf fmt
+          "@[differences: %a@]@,"
+          d (expected, actual)
+    | None -> ()
+    in
+    Format.pp_close_box fmt ();
+    Format.flush_str_formatter ()
+  in
+  if not (cmp expected actual) then (
+    Printf.printf "%s\n" (string_error ())
+  )
+
+type is_board_winning = G2048.board -> bool
+type shift_board = G2048.move -> G2048.board -> G2048.board
+type insert_square = G2048.square -> G2048.board -> G2048.board option
+type is_game_over = G2048.board -> bool
 
 let mk_board_test = QCheck.mk_test ~n:1000 ~pp:string_of_board
 
@@ -406,6 +447,7 @@ let test_game_over is_game_over =
 module Make (S: Solution) = struct
 
   module X = Make(S)
+  open OUnit
 
   let suite =
     "2048 tests" >:::
