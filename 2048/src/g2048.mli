@@ -9,7 +9,7 @@
 
 (** {1 Types} *)
 
-type square
+type square = int option
 (** The type for squares. *)
 
 type row = square list
