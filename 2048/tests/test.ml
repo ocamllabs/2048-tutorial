@@ -5,47 +5,11 @@
  * See the file COPYING for details.
  *)
 
+open OUnit
 open G2048
 open Board_utils
 
 let mk_board_test = QCheck.mk_test ~n:1000 ~pp:string_of_board
-
-exception Error
-
-let assert_equal ?ctxt ?(cmp = ( = )) ?printer ?pp_diff ?msg expected actual =
-  let show () =
-    let fmt = Format.std_formatter in
-    Format.pp_open_vbox fmt 0;
-    let () = match msg with
-    | Some s ->
-        Format.pp_open_box fmt 0;
-        Format.pp_print_string fmt s;
-        Format.pp_close_box fmt ();
-        Format.pp_print_cut fmt ()
-    | None -> ()
-    in
-    let () = match printer with
-    | Some p ->
-        Format.fprintf fmt
-          "@[expected: @[%s@]@ but got: @[%s@]@]@,"
-          (p expected)
-          (p actual)
-
-    | None -> Format.fprintf fmt "@[not equal@]@,"
-    in
-    let () = match pp_diff with
-    | Some d ->
-        Format.fprintf fmt
-          "@[differences: %a@]@,"
-          d (expected, actual)
-    | None -> ()
-    in
-    Format.pp_close_box fmt ()
-  in
-  if not (cmp expected actual) then (
-    show ();
-(*    raise Error *)
-  )
 
 let check_board_property name ?size (prop : board -> bool) =
   assert_equal true
@@ -442,57 +406,58 @@ let test_game_over is_game_over =
 module Make (S: Solution) = struct
 
   module X = Make(S)
-  open OUnit
-  let suite = "2048 tests" >:::
-              [
-                (* 1. tests for is_board_winning *)
-                "is_board_winning: test" >::
-                (fun () -> test_is_board_winning X.is_board_winning);
-                "is_board_winning: more test" >::
-                (fun () -> test_is_board_winning_more  X.shift_board X.is_board_winning);
 
-                (* 2. tests for shifts *)
-                "shift: test shifting empty rows" >::
-                (fun () -> test_shift_empty X.shift_board);
-                "shift: test shifting moves empty squares to the right" >::
-                (fun () -> test_shift_empty_squares X.shift_board);
-                "shift: test shifting can coalesce equal squares" >::
-                (fun () -> test_shift_coalesce X.shift_board);
-                "shift: test shifts" >::
-                (fun () -> test_shifts X.shift_board);
-                "shift: a fixpoint is reached after width(board) shift_boards" >::
-                (fun () -> test_shift_board_fixpoint X.shift_board);
+  let suite =
+    "2048 tests" >:::
+    [
+      (* 1. tests for is_board_winning *)
+      "is_board_winning: test" >::
+      (fun () -> test_is_board_winning X.is_board_winning);
+      "is_board_winning: more test" >::
+      (fun () -> test_is_board_winning_more  X.shift_board X.is_board_winning);
 
-                (* 3. tests for insertions *)
-                "insert: insertion into completely empty rows" >::
-                (fun () -> test_insert_row_completely_empty X.insert_square);
-                "insert: insertion into partially empty rows" >::
-                (fun () -> test_insert_row_partially_empty X.insert_square);
-                "insert: insertion into full rows" >::
-                (fun () -> test_insert_row_full X.insert_square);
-                "insert: insertion into last empty square" >::
-                (fun () -> test_insert_last_square X.insert_square);
-                "insert: squares can be added to a board that is not fully-populated" >::
-                (fun () -> test_add X.insert_square);
-                "insert: squares cannot be added to a fully-populated board" >::
-                (fun () -> test_add_to_full X.insert_square);
-                "insert: test insert_square" >::
-                (fun () -> test_insert X.insert_square);
+      (* 2. tests for shifts *)
+      "shift: test shifting empty rows" >::
+      (fun () -> test_shift_empty X.shift_board);
+      "shift: test shifting moves empty squares to the right" >::
+      (fun () -> test_shift_empty_squares X.shift_board);
+      "shift: test shifting can coalesce equal squares" >::
+      (fun () -> test_shift_coalesce X.shift_board);
+      "shift: test shifts" >::
+      (fun () -> test_shifts X.shift_board);
+      "shift: a fixpoint is reached after width(board) shift_boards" >::
+      (fun () -> test_shift_board_fixpoint X.shift_board);
 
-                (* 4. tests for is_game_over *)
-                "is_game_ovver: test game over" >::
-                (fun () -> test_game_over X.is_game_over);
+      (* 3. tests for insertions *)
+      "insert: insertion into completely empty rows" >::
+      (fun () -> test_insert_row_completely_empty X.insert_square);
+      "insert: insertion into partially empty rows" >::
+      (fun () -> test_insert_row_partially_empty X.insert_square);
+      "insert: insertion into full rows" >::
+      (fun () -> test_insert_row_full X.insert_square);
+      "insert: insertion into last empty square" >::
+      (fun () -> test_insert_last_square X.insert_square);
+      "insert: squares can be added to a board that is not fully-populated" >::
+      (fun () -> test_add X.insert_square);
+      "insert: squares cannot be added to a fully-populated board" >::
+      (fun () -> test_add_to_full X.insert_square);
+      "insert: test insert_square" >::
+      (fun () -> test_insert X.insert_square);
 
-                (* 5. tests for provenance *)
-                "provenance: test row provenance" >::
-                (fun () -> test_row_provenance X.shift_board X.square_provenances);
-                "provenance: test provenance" >::
-                (fun () -> test_provenance X.shift_board X.square_provenances);
+      (* 4. tests for is_game_over *)
+      "is_game_ovver: test game over" >::
+      (fun () -> test_game_over X.is_game_over);
 
-                (* Always-on tests *)
-                "test is_board_full" >::
-                (fun () -> test_is_board_full ());
-              ]
+      (* 5. tests for provenance *)
+      "provenance: test row provenance" >::
+      (fun () -> test_row_provenance X.shift_board X.square_provenances);
+      "provenance: test provenance" >::
+      (fun () -> test_provenance X.shift_board X.square_provenances);
+
+      (* Always-on tests *)
+      "test is_board_full" >::
+      (fun () -> test_is_board_full ());
+    ]
 
   let run () =
     run_test_tt_main suite

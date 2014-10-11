@@ -24,7 +24,7 @@ action ()
             fi
             ;;
         test)
-            $OCAMLBUILD test.js test_local.native
+            $OCAMLBUILD test.cmo test_local.native
             ./test_local.native
             ;;
         doc)
