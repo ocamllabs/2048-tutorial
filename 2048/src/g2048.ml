@@ -47,6 +47,7 @@ module type Solution = sig
   val shift_left_helper: row -> row -> row
   val shift_board : move -> board -> board
   val is_game_over : board -> bool
+  val square_provenances: square -> provenance list
 end
 
 let empty = None
