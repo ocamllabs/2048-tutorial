@@ -64,6 +64,6 @@ clean:
 	rm -f *.cmis.js *~ $(PROFILE) $(STATIC) iocaml.byte $(DOC)
 
 update: $(PROFILE) $(STATIC) $(DOC)
-	rsync -avz -e "ssh $(PORT)" $(FILES) $(DEST)
+	rsync -avL -e "ssh $(PORT)" $(FILES) $(DEST)
 
 -include Makefile.private
