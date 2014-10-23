@@ -12,20 +12,20 @@ RELOAD_BROWSER=${RELOAD_BROWSER="./support/reload-browser"}
 action ()
 {
     case $1 in
-        default) 
-            action app 
+        default)
+            action app
             action test
             ;;
         app)
             shift
-            $OCAMLBUILD -no-links main.js 2048.html
+            $OCAMLBUILD -no-links local.js 2048.html
             if [ "$1" = "-b" ]; then
                 $RELOAD_BROWSER "file://`pwd`/_build/src/2048.html"
             fi
             ;;
         test)
-            $OCAMLBUILD test_g2048.native
-            ./test_g2048.native
+            $OCAMLBUILD test.cmo test_local.native
+            ./test_local.native
             ;;
         doc)
             shift

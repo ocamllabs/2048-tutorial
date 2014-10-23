@@ -7,10 +7,27 @@
 
 (** 2048 game logic. *)
 
-(** {1 Square} *)
+(** {1 Types} *)
 
-type square
+type square = int option
 (** The type for squares. *)
+
+type row = square list
+(** The type for board rows. *)
+
+type board = row list
+(** The type for boards. *)
+
+(** The type for game moves.
+    {ul
+    {- [L] when the player press the left arrow.}
+    {- [R] when the player press the up arrow.}
+    {- [U] when the player press the up arrow.}
+    {- [D] when the player press the down arrow.}}
+*)
+type move = L | R | U | D
+
+(** {2 Squares} *)
 
 val empty : square
 (** [empty] is an empty square. *)
@@ -54,34 +71,10 @@ val square_value : square -> int option
 val string_of_square : square -> string
 (** [string_of_square t] is [t] as a string. *)
 
-(** {1 Provenance} *)
-
-type provenance = { shift : int; value : int }
-(** The provenance of a tile *)
-
-val square_provenances : square -> provenance list
-(** [square_provenances s] are the tile provenances on a square. *)
-
-(** {1 Boards} *)
-
-type row = square list
-(** The type for board rows. *)
-
-type board = row list
-(** The type boards. *)
+(** {2 Boards} *)
 
 val create_board : unit -> board
 (** [create_board ()] is a new board. *)
-
-val insert_square : square -> board -> board option
-(** [insert_square square board] is [board] with [square] inserted in an
-    empty spot or [None] if there was no such spot. *)
-
-val is_game_over : board -> bool
-(** [is_game_over board] is [true] iff there are no valid moves. *)
-
-val is_board_winning : board -> bool
-(** [is_board_winning board] is [true] iff the [board] is a winning board. *)
 
 val board_size : board -> int * int
 (** [board_size board] is the number of columns and rows in the board. *)
@@ -91,15 +84,56 @@ val fold_board : ('a -> (int * int) -> square -> 'a) -> 'a -> board -> 'a
     the zero-based positions and starting with [acc]. The left-bottom
     corner has position [(0,0)]. *)
 
-(** {1 Moves} *)
+(** {1 Provenance} *)
 
-(** The type for game moves. *)
-type move = L | R | U | D
+type provenance = { shift : int; value : int }
+(** The provenance of a tile. {e Not used by the online tutorial.} *)
 
-val shift_board : move -> board -> board
-(** [shift_board move board] is the board resulting from shifting [board]
-    in direction [move]. *)
+(** {1 Solutions} *)
 
-val game_move : move -> board -> board
-(** [game_move move board] is the board resulting from shifting [board]
-    in direction [move] and inserts a new square if the board is not full. *)
+module type Solution = sig
+
+  val is_square_2048: square -> bool
+  (** Whether a square is occupied by a tile with the value 2048. *)
+
+  val is_complete_row: row -> bool
+  (** A row is complete if
+     * it contains no empty squares and
+     * a shift leaves it unchanged *)
+
+  val is_board_winning : board -> bool
+  (** [is_board_winning board] is [true] iff the [board] is a winning board. *)
+
+  val insert_square : square -> board -> board option
+  (** [insert_square square board] is [board] with [square] inserted
+      in an empty spot or [None] if there was no such spot. *)
+
+  val shift_left_helper: row -> row -> row
+  (** Shift a row to the left according to the rules of the game, and
+      append `empties`.  Tiles slide over empty squares, and adjacent
+      tiles are coalesced if they have the same value. *)
+
+  val shift_board : move -> board -> board
+  (** [shift_board move board] is the board resulting from shifting
+      [board] in direction [move]. *)
+
+  val is_game_over : board -> bool
+  (** [is_game_over board] is [true] iff there are no valid moves. *)
+
+  val square_provenances: square -> provenance list
+  (** [square_provenances s] are the tile provenances on a square. {e Not
+      used by the online tutorial.} *)
+
+end
+
+module Default: Solution
+
+module Make (S: Solution): sig
+
+  include Solution
+
+  val game_move : move -> board -> board
+  (** [game_move move board] is the board resulting from shifting [board]
+      in direction [move] and inserts a new square if the board is not full. *)
+
+end

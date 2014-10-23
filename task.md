@@ -23,31 +23,9 @@ $ opam switch 4.01.0                                   # install the OCaml 4.01 
 $ opam install gg vg react js_of_ocaml ounit qcheck    # Install the named packages and their dependencies
 ```
 
-In order to run the notebooks you'll need IOCaml
-
-```
-$ opam install iocaml
-```
-
-IOCaml relies on a couple of non-OCaml libraries: libffi and libzmq.  You should install these using your system's package manager.
-
-You can make a local copy of the repository containing the tutorial files using `git clone`:
-
-```bash
-$ git clone https://github.com/ocamllabs/cufp-tutorial.git
-```
-
-#### Running the notebooks
-
-Once you've installed IOCaml, the following command will start the IOCaml server and open the notebooks in your browser.
-
-```bash
-$ iocaml notebooks/
-```
-
 ### Core steps
 
-The outline game logic is in the file `2048/src/g2048.ml`.  
+The outline game logic is in the file `2048/src/g2048.ml`.
 
 In the directory `2048`, run the command `./build test` to build the code and run the tests.  You should see something like the following output:
 
@@ -60,7 +38,7 @@ FTTTTTTTTTTTTTTTtesting property Randomly generated full boards are full...
 .
 ==============================================================================
 Failure: 2048 tests:0:test is_board_winning
- 
+
 A 1x1 board containing 2048 is a winning board
 not equal
 ------------------------------------------------------------------------------
