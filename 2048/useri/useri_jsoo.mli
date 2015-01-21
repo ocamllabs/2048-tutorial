@@ -9,6 +9,14 @@
 open Gg
 open React
 
+(** User touch.
+
+    {b TODO} Mention that scrolling will be disabled (or maybe
+    provide an option do it like for {!Key}.).
+    Mention how to prevent zooming by using (user-scalable=no). *)
+module Touch : sig
+end
+
 (** User keyboard.
 
     Consult information about {{!get}getting keyboard events} and

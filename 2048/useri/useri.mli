@@ -281,7 +281,7 @@ end
 (** User mouse.
 
     Mouse events are only reported whenever the mouse is
-    in the application surface. Coordinates are in surface noralized
+    in the application surface. Coordinates are in surface normalized
     coordinates with [(0,0)] corresponding to the bottom left corner
     and [(1,1)] to the top right corner. *)
 module Mouse : sig
@@ -326,6 +326,50 @@ module Mouse : sig
   val right_down : p2 event
   (** [right_down] has an occurence whenever the right mouse button goes
       down. *)
+end
+
+(** User touches.
+
+    Touch events are only reported whenever they occur
+    in the application surface (FIXME is that true ?).
+    Coordinates are in surface normalized
+    coordinates with [(0,0)] corresponding to the bottom left corner
+    and [(1,1)] to the top right corner. *)
+module Touch : sig
+
+  (** {1 Touch} *)
+
+  type t
+  (** The type for user touches. *)
+
+  val id : t -> int
+  (** [id t] is a unique identifier for the touch
+      (FIXME across device identifiers ?) *)
+
+  val start_pos : t -> p2
+  (** [start_pos t] is the initial touch position of [t]. *)
+
+  val did : t -> int
+  (** [did t] is a device identifier for the touch. *)
+
+  val pos : t -> p2 signal
+  (** [pos t] is the current touch position of [t]. *)
+
+  val dpos : t -> v2 event
+  (** [dpos t] occurs when the touch moves with the current touch position
+      minus the previous one. *)
+
+  val pressure : t -> float signal
+  (** [pressure t] is the pressure normalized from [0.] to [1.] (if
+      available). *)
+
+  val over : t -> [ `Up | `Cancel ] event
+  (** [over t] occurs once whenever the touch ends either because
+      the pressure stops ([`Up]) or because the touch is canceled ([`Cancel],
+      for example if the touch is captured by something else). *)
+
+  val start : t list event
+  (** [start] occurs whenever touches do. *)
 end
 
 (** User keyboard.
