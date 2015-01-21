@@ -4,6 +4,7 @@
    %%NAME%% release %%VERSION%%
   ---------------------------------------------------------------------------*)
 
+module Touch = Useri_backend_jsoo.Touch
 module Key = Useri_backend_jsoo.Key
 module Drop = Useri_backend_jsoo.Drop
 module Surface = Useri_backend_jsoo.Surface
