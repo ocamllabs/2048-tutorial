@@ -18,12 +18,41 @@ module Make (Solution: G2048.Solution) = struct
   module G = G2048.Make(Solution)
   module Render = Render.Make(Solution)
 
+  let user_swipe : G2048.move event =
+    let swipes =
+      E.switch E.never
+        (E.map (fun ts ->
+             match ts with
+             | [] -> E.never
+             | t :: _ ->
+                 let start_pos = Touch.start_pos t in
+                 let finished =
+                   E.fmap (function
+                            | `Up -> Some ()
+                            | `Cancel -> None) (Touch.over t)
+                 in
+                   S.sample
+                     (fun () end_pos -> V2.sub end_pos start_pos)
+                     finished (Touch.pos t))
+            Touch.start)
+    in
+      E.map
+        (fun v ->
+           if abs_float (V2.x v) > abs_float (V2.y v) then begin
+             if (V2.x v) > 0.0 then G2048.R
+             else G2048.L
+           end else begin
+               if (V2.y v) > 0.0 then G2048.U
+               else G2048.D
+           end)
+        swipes
+
   let user_move : G2048.move event =
     let u = E.stamp (Key.up (`Arrow `Up))    G2048.U in
     let d = E.stamp (Key.up (`Arrow `Down))  G2048.D in
     let l = E.stamp (Key.up (`Arrow `Left))  G2048.L in
     let r = E.stamp (Key.up (`Arrow `Right)) G2048.R in
-    E.select [u; d; l; r]
+    E.select [user_swipe; u; d; l; r]
 
   let board : G2048.board signal =
     let move m board =

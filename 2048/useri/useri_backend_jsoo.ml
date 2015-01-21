@@ -19,6 +19,17 @@ let err_not_jsoo_handle = "not a useri.jsoo surface handle"
 let err_not_jsoo_file = "not a useri.jsoo file"
 let err_no_gl = "`Gl unsupported for WebGL use `Other"
 let err_init = "Useri not initialized"
+let err_tid = "Unknown touch id"
+
+(* Integer sets and maps *)
+
+module Int = struct
+  type t = int
+  let compare : int -> int -> int = Pervasives.compare
+end
+
+module Iset = Set.Make (Int)
+module Imap = Map.Make (Int)
 
 (* js_of_ocaml events *)
 
@@ -212,7 +223,6 @@ module Mouse = struct
     ignore ((Js.Unsafe.coerce c) ## focus ()); (* since we prevent default *)
     Ev.handle_capture e ~capture:true
 
-
   let up_cb c e =
     let step = Step.create () in
     let epos = set_mouse_pos ~step c e in
@@ -232,6 +242,100 @@ module Mouse = struct
     let _ = set_mouse_pos ~step c e in
     React.Step.execute step;
     Ev.handle_capture e ~capture:true
+end
+
+(* Touch *)
+
+module Touch = struct
+
+  let js_changed_touches e = (Js.Unsafe.coerce e) ## changedTouches
+  let js_changed_touch changed i = Js.Unsafe.get changed i
+  let js_touch_id js_t = (Js.Unsafe.coerce js_t) ## identifier
+  let js_touch_pos c js_t =
+    let r = (c :> Dom_html.element Js.t) ## getBoundingClientRect () in
+    let x = (float ((Js.Unsafe.coerce js_t) ## clientX)) -. r ## left in
+    let y = (float ((Js.Unsafe.coerce js_t) ## clientY)) -. r ## top in
+    let nx = x /. (r ## right -. r ## left) in
+    let ny = 1. -. (y /. (r ## bottom -. r ## top)) in
+    V2.v nx ny
+
+  type over = [ `Up | `Cancel ]
+  type t =
+    { id : int;
+      start_pos : p2;
+      pos : p2 signal * (?step:React.step -> p2 -> unit);
+      dpos : v2 event * (?step:React.step -> v2 -> unit);
+      over : over event * (?step:React.step -> over -> unit); }
+
+  let id t = t.id
+  let start_pos t = t.start_pos
+  let did _ = 0 (* not supported *)
+  let pos t = fst t.pos
+  let dpos t = fst t.dpos
+  let pressure _ = S.const 0. (* not supported *)
+  let over t = fst t.over
+
+  let active = ref Imap.empty
+
+  let touch_destroy t = active := Imap.remove t.id !active
+  let touch_create c js_t =
+    let id = js_touch_id js_t in
+    let start_pos = js_touch_pos c js_t in
+    let pos = S.create start_pos in
+    let dpos = E.create () in
+    let over = E.create () in
+    let t = { id; start_pos; pos; dpos; over } in
+    active := Imap.add t.id t !active;
+    t
+
+  let touch_update step c js_t t =
+    let pos = js_touch_pos c js_t in
+    (snd t.dpos) ?step V2.(pos - (S.value (fst t.pos)));
+    (snd t.pos) ?step pos;
+    ()
+
+  let start, send_start = E.create ()
+  let start_cb c e =
+    let changed = js_changed_touches e in
+    let started = ref [] in
+    for i = 0 to changed ## length - 1 do
+      started := touch_create c (js_changed_touch changed i) :: !started
+    done;
+    send_start !started;
+    Ev.handle_capture e ~capture:true
+
+  let move_cb c e =
+    let step = React.Step.create () in
+    let sstep = Some step in
+    let changed = js_changed_touches e in
+    for i = 0 to changed ## length - 1 do
+      try
+        let js_t = js_changed_touch changed i in
+        let t = Imap.find (js_touch_id js_t) !active in
+        touch_update sstep c js_t t;
+      with Not_found -> log_err err_tid
+    done;
+    React.Step.execute step;
+    Ev.handle_capture e ~capture:true
+
+  let over_cb over c e =
+    let step = React.Step.create () in
+    let sstep = Some step in
+    let changed = js_changed_touches e in
+    for i = 0 to changed ## length - 1 do
+      try
+        let js_t = js_changed_touch changed i in
+        let t = Imap.find (js_touch_id js_t) !active in
+     (*    touch_update sstep c js_t t; FIXME usually pos doesn't change *)
+        touch_destroy t;
+        (snd t.over) ?step:sstep over
+      with Not_found -> log_err err_tid
+    done;
+    React.Step.execute step;
+    Ev.handle_capture e ~capture:true
+
+  let end_cb c e = over_cb `Up c e
+  let cancel_cb c e = over_cb `Cancel c e
 end
 
 (* Key *)
@@ -289,13 +393,6 @@ module Key = struct
   let key_capture : (Useri_base.Key.id -> bool) ref = ref default_key_capture
   let set_key_capture pred = key_capture := pred
   let key_capture () = !key_capture
-
-  module Int = struct
-    type t = int
-    let compare : int -> int -> int = Pervasives.compare
-  end
-
-  module Iset = Set.Make (Int)
 
   let downs = ref Iset.empty (* to suppress key repeat *)
 
@@ -551,6 +648,10 @@ module Surface = struct
         Ev.cb c Dom_html.Event.mousedown Mouse.down_cb;
         Ev.cb c Dom_html.Event.mouseup Mouse.up_cb;
         Ev.cb c Dom_html.Event.mousemove Mouse.move_cb;
+        Ev.cb c (Dom.Event.make "touchstart") Touch.start_cb;
+        Ev.cb c (Dom.Event.make "touchmove") Touch.move_cb;
+        Ev.cb c (Dom.Event.make "touchcancel") Touch.cancel_cb;
+        Ev.cb c (Dom.Event.make "touchend") Touch.end_cb;
         c ## setAttribute (Js.string "tabindex", Js.string "1");
         (*        (Js.Unsafe.coerce c) ## focus (); *)
         Key.setup_cbs (c :> Dom_html.eventTarget Js.t);
