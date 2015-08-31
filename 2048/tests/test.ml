@@ -487,7 +487,7 @@ module Make (S: Solution) = struct
       (fun () -> test_insert X.insert_square);
 
       (* 4. tests for is_game_over *)
-      "is_game_ovver: test game over" >::
+      "is_game_over: test game over" >::
       (fun () -> test_game_over X.is_game_over);
 
       (* 5. tests for provenance *)
