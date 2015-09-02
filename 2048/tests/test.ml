@@ -52,15 +52,15 @@ type is_game_over = G2048.board -> bool
 
 let mk_board_test = QCheck.mk_test ~n:1000 ~pp:string_of_board
 
-let check_board_property name ?size (prop : board -> bool) =
+let check_board_property nomen ?size (prop : board -> bool) =
   assert_equal true
-    ~msg:(Printf.sprintf "QCheck test %s" name)
-    QCheck.(run (mk_board_test ~name (arbitrary_board ?size) prop))
+    ~msg:(Printf.sprintf "QCheck test %s" nomen)
+    QCheck.(run (mk_board_test ~name:nomen (arbitrary_board ?size) prop))
 
-let check_full_board_property name ?size (prop : board -> bool) =
+let check_full_board_property nomen ?size (prop : board -> bool) =
   assert_equal true
-    ~msg:(Printf.sprintf "QCheck test %s" name)
-    QCheck.(run (mk_board_test ~name (arbitrary_full_board ?size) prop))
+    ~msg:(Printf.sprintf "QCheck test %s" nomen)
+    QCheck.(run (mk_board_test ~name:nomen (arbitrary_full_board ?size) prop))
 
 let test_shift_board_fixpoint shift_board =
   check_board_property "Shifting reaches a fixpoint after width(board) shifts"
