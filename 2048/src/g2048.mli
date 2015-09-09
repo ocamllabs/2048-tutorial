@@ -104,6 +104,10 @@ module type Solution = sig
   val is_board_winning : board -> bool
   (** [is_board_winning board] is [true] iff the [board] is a winning board. *)
 
+  val is_valid_move : move -> board -> bool
+  (** [is_valid_move move board] is [true] iff shifting [board] in the direction
+      [move] results in a change in the game board. *)
+
   val insert_square : square -> board -> board option
   (** [insert_square square board] is [board] with [square] inserted
       in an empty spot or [None] if there was no such spot. *)

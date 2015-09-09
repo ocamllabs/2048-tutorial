@@ -43,6 +43,7 @@ module type Solution = sig
   val is_square_2048: square -> bool
   val is_complete_row: row -> bool
   val is_board_winning : board -> bool
+  val is_valid_move : move -> board -> bool
   val insert_square : square -> board -> board option
   val shift_left_helper: row -> row -> row
   val shift_board : move -> board -> board
@@ -95,10 +96,13 @@ module Make (S: Solution) = struct
 
   (** High-level interface. *)
   let game_move (mv : move) (b : board) : board =
-    let b' = S.shift_board mv b in
-    match S.insert_square (new_square ()) b' with
-    | None -> b'
-    | Some b'' -> b''
+    if is_valid_move mv b then begin
+      let b' = S.shift_board mv b in
+      match S.insert_square (new_square ()) b' with
+      | None -> b'
+      | Some b'' -> b''
+    end
+    else b
 
 end
 
@@ -224,12 +228,32 @@ module Default = struct
   (* Once the provenance tests pass you can run the game again and see
      the sliding animations in action! *)
 
-  (********* Step 5 *********)
+  (********* Step 6: Roll the Dice *********)
 
   (* Always inserting squares in the first empty space makes the game
      much less challenging.  See if you can update `insert_square` to
      use a random empty position instead (perhaps using
      `Utils.replace_at`).  Don't forget to check that the tests still
      pass! *)
+
+  (********* Step 7: Allow Only Valid Moves *********)
+
+  (* Currently, the game allows the player to make moves which don't
+     change the state of the game, meaning that a player can easily
+     generate a new tile without needing to shift tiles in a direction
+     they don't want to.  The game becomes more challenging, though, if only
+     moves which change the board state are allowed.  Implement `is_valid_move`
+     and check its value before allowing a board shift to continue.
+  *)
+
+  let is_valid_move (mv : move) (b : board) = true
+
+  (********* Step 8: Animate Only Valid Moves *********)
+
+  (* At this point, when the player attempts an invalid move, the tiles will
+     still be animated as if they had just been moved.  Change `game_move` to
+     clear the provenance of tiles after an invalid move to avoid this
+     disconcerting animation artifact, and you'll have a fully-functional 2048!
+  *)
 
 end
