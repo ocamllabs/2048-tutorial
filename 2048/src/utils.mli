@@ -32,3 +32,5 @@ val replace_one : ('a -> 'a option) -> 'a list -> 'a list option
 val fold_listlisti : ('a -> int * int -> 'b -> 'a) -> 'a -> 'b list list -> 'a
 val listlist_dims : 'a list list -> int * int
 val replace_at : int -> ('a -> 'a) -> 'a list -> 'a list
+(** [replace_at i f row] replaces the [i]th element of [row] with the results of
+    applying [f] to that element. *)

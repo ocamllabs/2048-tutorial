@@ -43,6 +43,7 @@ module type Solution = sig
   val is_square_2048: square -> bool
   val is_complete_row: row -> bool
   val is_board_winning : board -> bool
+  val is_valid_move : move -> board -> bool
   val insert_square : square -> board -> board option
   val shift_left_helper: row -> row -> row
   val shift_board : move -> board -> board
@@ -95,10 +96,13 @@ module Make (S: Solution) = struct
 
   (** High-level interface. *)
   let game_move (mv : move) (b : board) : board =
-    let b' = S.shift_board mv b in
-    match S.insert_square (new_square ()) b' with
-    | None -> b'
-    | Some b'' -> b''
+    if is_valid_move mv b then begin
+      let b' = S.shift_board mv b in
+      match S.insert_square (new_square ()) b' with
+      | None -> b'
+      | Some b'' -> b''
+    end
+    else b
 
 end
 
@@ -108,14 +112,17 @@ module Default = struct
 
   (********* Step 1 *********)
 
-  (* Your first task is to fix the code so that the tests pass. *)
+  (* Your first task is to fix the code so that the tests pass.
+     `is_board_winning` is directly tested whereas `is_square_2048` is not,
+     so you'll have to implement both functions below before
+     you begin to see the tests pass. *)
 
   (* TODO: Complete the function `is_square_2048`. The function should
      return `true` if a square has the value `2048` and `false`
      otherwise. *)
   let is_square_2048 (sq : square) = false
 
-  (* TODO: * Write the `is_board_winning. The `List.exists` function
+  (* TODO: * Write the `is_board_winning` function. The `List.exists` function
      (which you can try out in an IOCaml notebook) may prove
      useful. *)
   let is_board_winning (b : board) = false
@@ -129,27 +136,28 @@ module Default = struct
      down, left and right. *)
 
   (* TODO: Implement the `shift_left_helper` to support the left shift
-     action.  You'll need to consider the following cases:
+     action, by building a new_row step by step.
+     You'll need to consider the following cases:
 
      - The row is empty.  There's nothing to do except return the
-     accumulated `empties` list.
+     accumulated `new_row` list.
 
-     - The first square is unoccupied (`None`).  Add it to `empties`
+     - The first square is unoccupied (`None`).  Add it to `new_row`
        and process the rest of the row.
 
      - The first two squares are occupied by equal tiles.  Merge them
-       together, add an entry to the `empties` list, and process the
+       together, add an entry to the `new_row` list, and process the
        rest of the row.
 
      - The first square is occupied, but the second square is
-       unoccupied.  Move the unoccupied square to the `empties` list
+       unoccupied.  Move the unoccupied square to the `new_row` list
        and reprocess the row.
 
      - The first square is occupied and not covered by the cases
        above.  Move on to processing the rest of the list.
 
      Hint: use pattern matching on r and recursion. *)
-  let rec shift_left_helper (r : row) (empties : row) : row = r
+  let rec shift_left_helper (r : row) (new_row: row) : row = r
 
   let shift_left (r : row) = shift_left_helper r []
 
@@ -167,11 +175,11 @@ module Default = struct
   (* The next step is to implement a function for adding new tiles to
      the board after a move. *)
 
-  (* TODO: Implement the `insert_square` function.  You may like to
+  (* TODO: Implement the `insert_square` function.  You might like to
      start by implementing a function `insert_into_row`, perhaps using
      `Utils.replace_one`.  You may find it simplest to simply insert
      the tile in the first empty space.  There'll be an opportunity
-     for a more realistic implementation in step 6. *)
+     for a more interesting implementation in step 6. *)
   let insert_square (sq : square) (b : board) : board option = None
 
   (* There's a minor milestone at this point: if the tests pass then
@@ -199,7 +207,7 @@ module Default = struct
   (* At this point it's possible to play the game, but the tiles leap
      disconcertingly around the board rather than sliding smoothly.
      Sliding animations require keeping track of where tiles came
-     from: their *provenance*. *)
+     from: their *provenance*, a count of the number of squares a tile has slid. *)
 
   (* TODO: Change the definition of the `tile` type in `g2048.ml` to
      include provenance: {| type tile = int * provenance list |}
@@ -220,12 +228,32 @@ module Default = struct
   (* Once the provenance tests pass you can run the game again and see
      the sliding animations in action! *)
 
-  (********* Step 5 *********)
+  (********* Step 6: Roll the Dice *********)
 
   (* Always inserting squares in the first empty space makes the game
      much less challenging.  See if you can update `insert_square` to
      use a random empty position instead (perhaps using
      `Utils.replace_at`).  Don't forget to check that the tests still
      pass! *)
+
+  (********* Step 7: Allow Only Valid Moves *********)
+
+  (* Currently, the game allows the player to make moves which don't
+     change the state of the game, meaning that a player can easily
+     generate a new tile without needing to shift tiles in a direction
+     they don't want to.  The game becomes more challenging, though, if only
+     moves which change the board state are allowed.  Implement `is_valid_move`
+     and check its value before allowing a board shift to continue.
+  *)
+
+  let is_valid_move (mv : move) (b : board) = true
+
+  (********* Step 8: Animate Only Valid Moves *********)
+
+  (* At this point, when the player attempts an invalid move, the tiles will
+     still be animated as if they had just been moved.  Change `game_move` to
+     clear the provenance of tiles after an invalid move to avoid this
+     disconcerting animation artifact, and you'll have a fully-functional 2048!
+  *)
 
 end

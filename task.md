@@ -19,7 +19,7 @@ We'll start with a brief introduction to OCaml, with a tour through the parts of
 We'll be using a number of OCaml packages for the tutorial.  The easiest way to install the packages is to use OPAM.
 
 ```
-$ opam switch 4.01.0                                   # install the OCaml 4.01 compiler
+$ opam switch 4.02.3                                   # install the OCaml 4.02 compiler
 $ opam install gg vg react js_of_ocaml ounit qcheck    # Install the named packages and their dependencies
 ```
 

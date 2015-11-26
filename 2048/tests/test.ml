@@ -63,7 +63,8 @@ let check_full_board_property nomen ?size (prop : board -> bool) =
     QCheck.(run (mk_board_test ~name:nomen (arbitrary_full_board ?size) prop))
 
 let test_shift_board_fixpoint shift_board =
-  check_board_property "Shifting reaches a fixpoint after width(board) shifts"
+  check_board_property
+    "Shifting reaches a fixpoint after a number of shifts equal to the width of the board"
     (fun board ->
        let fixed = iter (List.length board) (shift_board L) board in
        board_equal (shift_board L fixed) fixed)
@@ -444,6 +445,44 @@ let test_game_over is_game_over =
         [t16  ; t8    ; t16  ];
         [t8   ; t1024 ; t1024]])
 
+let test_valid_moves is_valid_move =
+  let check_shift direction =
+    assert_equal true
+      ~msg:"Moves which result in shifts are valid"
+      (is_valid_move direction [[empty; empty];
+                                [t2   ; empty]])
+  in
+  List.iter check_shift [R; U];
+
+  assert_equal true
+    ~msg:"Tile-squashing moves are valid"
+    (is_valid_move L [[t2; t2; t4]])
+
+let test_invalid_moves is_valid_move =
+  let test_single direction =
+    assert_equal false
+      ~msg:"Shifting on a full, non-coalescing row is not a valid move"
+      (is_valid_move direction [[t2 ; t4 ; t2 ]])
+  in
+  List.iter test_single [ L; R; U; D ];
+
+  assert_equal false
+    ~msg:"Shifting up on a non-full board with no tile-squashes is not a valid move"
+    (is_valid_move U
+       [[t8   ; t2    ; t8   ];
+        [t16  ; t8    ; t16  ];
+        [t8   ; empty ; t1024]]);
+
+  let test_near_gameover direction =
+    assert_equal false
+      ~msg:"Shifting on nearly-locked board is not a valid move"
+      (is_valid_move direction
+         [[t8   ; t2    ; t16  ];
+          [t16  ; t8    ; t16  ];
+          [t8   ; t1024 ; t2   ]])
+  in
+  List.iter test_near_gameover [L; R]
+
 module Make (S: Solution) = struct
 
   module X = Make(S)
@@ -487,7 +526,7 @@ module Make (S: Solution) = struct
       (fun () -> test_insert X.insert_square);
 
       (* 4. tests for is_game_over *)
-      "is_game_ovver: test game over" >::
+      "is_game_over: test game over" >::
       (fun () -> test_game_over X.is_game_over);
 
       (* 5. tests for provenance *)
@@ -495,6 +534,14 @@ module Make (S: Solution) = struct
       (fun () -> test_row_provenance X.shift_board X.square_provenances);
       "provenance: test provenance" >::
       (fun () -> test_provenance X.shift_board X.square_provenances);
+
+      (* 6. tests for randomness *)
+
+      (* 7. tests for valid moves *)
+      "is_valid_move: test valid moves" >::
+      (fun () -> test_valid_moves X.is_valid_move);
+      "is_valid_move: test invalid moves" >::
+      (fun () -> test_invalid_moves X.is_valid_move);
 
       (* Always-on tests *)
       "test is_board_full" >::
