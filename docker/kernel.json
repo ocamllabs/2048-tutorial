@@ -1,0 +1,13 @@
+{
+ "display_name": "OCaml",
+ "language": "ocaml",
+ "argv": [
+      "/root/.opam/system/bin/iocaml.top",
+      "-log",
+      "/root/iocaml.log",
+      "-object-info",
+      "-completion",
+      "-connection-file",
+      "{connection_file}"
+ ]
+}
