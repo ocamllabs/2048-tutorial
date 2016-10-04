@@ -4,7 +4,7 @@ the notebooks included in this project.
 
 ## Build
 
-    docker build --force-rm=true -t iocaml
+    docker build --force-rm=true -t iocaml .
 
 ## Run
 
